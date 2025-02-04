@@ -1,0 +1,23 @@
+### Teszt: Felhasználó létrehozása
+POST http://localhost:3000/users/create-user
+Content-Type: application/json
+
+{
+  "username": "user2",
+  "email": "user1@example.com",
+  "domain": "user1domain2"
+}
+
+### Teszt: Felhasználók listázása (Adminisztrátorként)
+GET http://localhost:3000/users/
+
+### Teszt: Felhasználó módosítása
+PATCH http://localhost:3000/users/5
+Content-Type: application/json
+
+{
+  "email": "updateduser1@example.com"
+}
+
+### Teszt: Felhasználó törlése
+DELETE http://localhost:3000/users/6

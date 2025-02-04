@@ -1,0 +1,29 @@
+{
+  "name": "orm",
+  "version": "1.0.0",
+  "main": "server.ts",
+  
+  "scripts": {
+    "dev": "nodemon src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "NodeJS + Express + TypeORM",
+  "dependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.1",
+    "app": "^0.1.0",
+    "arg": "^5.0.2",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.12.0",
+    "nodemailer": "^6.10.0",
+    "nodemon": "^3.1.7",
+    "reflect-metadata": "^0.2.2",
+    "ts-node": "^10.9.2",
+    "typeorm": "^0.3.20"
+  }
+}
