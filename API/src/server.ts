@@ -1,50 +1,55 @@
 import express from "express";
 import cors from "cors";
-import mysql from "mysql";
 import userRoutes from "./routes/userRoutes";
 import { AppDataSource } from "./data-source";
-
+import { Package } from "./entity/Package";
+import packageRoutes from "./routes/packageRoutes";
 
 const app = express();
 
-const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  multipleStatements: true,
-});
-
 app.use(cors());
 app.use(express.json());
-
-
-// Felhasználói route-ok hozzáadása
 app.use("/users", userRoutes);
+app.use("/packages", packageRoutes);
 
-function generatePassword() {
-  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.!#@%";
-  let password = "";
-  for (let i = 0; i < 12; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
+
+// 🔹 Nem inicializáljuk újra az AppDataSource-t a seedDatabase-ben!
+async function seedDatabase() {
+  try {
+    const packageRepository = AppDataSource.getRepository(Package);
+
+    // Ellenőrizzük, hogy van-e már adat
+    const existingPackages = await packageRepository.count();
+    if (existingPackages > 0) {
+      console.log("⚠️ A `package` tábla már tartalmaz adatokat, seedelés kihagyva.");
+      return;
+    }
+
+    // Új csomagok beszúrása
+    const packages = [
+      { name: "Basic", price: 9.99, description: "Alap tárhely csomag 10GB tárhellyel." },
+      { name: "Standard", price: 19.99, description: "Közepes tárhely csomag 50GB tárhellyel és adatbázissal." },
+      { name: "Premium", price: 29.99, description: "Prémium tárhely csomag korlátlan erőforrásokkal." }
+    ];
+
+    await packageRepository.save(packages);
+    console.log("✅ `package` tábla sikeresen feltöltve!");
+  } catch (error) {
+    console.error("❌ Hiba történt a seedelés közben:", error);
   }
-  return password;
 }
 
-  AppDataSource.initialize()
-.then(()=>{
+// 🔹 Az AppDataSource-t itt inicializáljuk, ÉS csak egyszer!
+AppDataSource.initialize()
+  .then(async () => {
+    console.log("✅ Adatbázis sikeresen csatlakoztatva!");
 
-    app.use(cors());
-    app.use(express.json());
+    await seedDatabase(); 
 
-    app.use('/users', userRoutes);
-
-    app.listen(3000, ()=>{
-        console.log(`Server: http://localhost:3000`);
+    app.listen(3000, () => {
+      console.log(`🚀 Server running at http://localhost:3000`);
     });
-})
-.catch(
-    (err)=>{
-        console.log(`Hiba történt az adatbázis kapcsolat felépítésekor! (${err})`);
-    }
-);
-
+  })
+  .catch((err) => {
+    console.error("❌ Hiba történt az adatbázis kapcsolat során:", err);
+  });
