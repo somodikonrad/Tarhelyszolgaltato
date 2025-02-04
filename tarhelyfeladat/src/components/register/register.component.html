@@ -1,23 +1,24 @@
-<div class="flex justify-content-center align-items-center min-h-screen b">
-    <div class="card p-5 shadow-2 border-round w-20rem">
-        <div class="flex flex-column align-items-center gap-3">
-            <div class="flex flex-column w-full gap-2">
-                <label for="email">E-mail</label>
-                <input pInputText id="email" type="email" class="w-full" />
-            </div>
-            <div class="flex flex-column w-full gap-2">
-                <label for="username">Username</label>
-                <input pInputText id="username" type="text" class="w-full" />
-            </div>
-            <div class="flex flex-column w-full gap-2">
-                <label for="password">Password</label>
-                <input pInputText id="password" type="password" class="w-full" />
-            </div>
-            <div class="flex flex-column w-full gap-2">
-                <label for="passwordconfirm">Password confirm</label>
-                <input pInputText id="passwordconfirm" type="password" class="w-full" />
-            </div>
-            <p-button label="Registration" icon="pi pi-user" styleClass="w-full mt-3" />
-        </div>
+<p-toast></p-toast> <!-- Ez kell az üzenetek megjelenítéséhez -->
+
+<div class="form-card">
+  <h2 class="form-title">Registration</h2>
+  <form (submit)="registration()">
+    <div class="input-group">
+      <label for="email">E-mail</label>
+      <input type="email" id="email" name="email" [(ngModel)]="user.email" required />
     </div>
+    <div class="input-group">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" [(ngModel)]="user.name" required />
+    </div>
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" [(ngModel)]="user.passwd" required />
+    </div>
+    <div class="input-group">
+      <label for="passwordconfirm">Password Confirm</label>
+      <input type="password" id="passwordconfirm" name="passwordConfirm" [(ngModel)]="user.confirm" required />
+    </div>
+    <button type="submit" class="btn">Register</button>
+  </form>
 </div>
