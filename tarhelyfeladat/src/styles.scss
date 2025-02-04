@@ -69,7 +69,6 @@ html, body {
   
     label {
       font-weight: 600;
-      color: #333;
       font-size: 0.9rem;
       text-align: left;
     }
@@ -80,13 +79,11 @@ html, body {
       border-radius: 8px;
       font-size: 1rem;
       transition: all 0.3s ease;
-      background: #f9f9f9;
   
       &:focus {
         border-color: #1e3c72;
         box-shadow: 0 0 5px rgba(30, 60, 114, 0.5);
         outline: none;
-        background: #fff;
       }
     }
   }

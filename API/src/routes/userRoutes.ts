@@ -7,7 +7,7 @@ import { generatePassword } from "../utils/password";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
-import { isAdmin } from "../utils/isadmin";
+import { isAdmin } from "../utils/isAdmin";
 
 dotenv.config();
 
@@ -32,7 +32,7 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
-});
+}); 
 
 // 📌 Új felhasználó létrehozása
 router.post('/create-user', async (req: any, res: any) => {

@@ -12,13 +12,9 @@
       <input type="text" id="username" name="username" [(ngModel)]="user.name" required />
     </div>
     <div class="input-group">
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" [(ngModel)]="user.passwd" required />
-    </div>
-    <div class="input-group">
-      <label for="passwordconfirm">Password Confirm</label>
-      <input type="password" id="passwordconfirm" name="passwordConfirm" [(ngModel)]="user.confirm" required />
-    </div>
+        <label for="domain">Domain</label>
+        <input type="text" id="domain" name="domain" [(ngModel)]="user.domain" required />
+      </div>
     <button type="submit" class="btn">Register</button>
   </form>
 </div>

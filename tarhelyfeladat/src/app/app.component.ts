@@ -37,7 +37,8 @@ ngOnInit(): void {
         label: 'Csomagválasztó',
         icon: 'pi pi-shopping-bag',
         routerLink: '/packages'
-    }
+      },
+      
     ]
 }
 }

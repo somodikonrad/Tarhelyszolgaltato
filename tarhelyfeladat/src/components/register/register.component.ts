@@ -30,13 +30,12 @@ export class RegisterComponent {
     name: '',
     email: '',
     passwd: '',
-    confirm: '',
     role: '',
     domain: ''
   };
 
   registration() {
-    this.api.registration('users', this.user).subscribe((res: any) => {
+    this.api.registration(this.user).subscribe((res: any) => {
       this.invalidFields = res.invalid;
       if (this.invalidFields.length == 0) {
         // ✅ Helyes MessageService hívás
@@ -48,7 +47,6 @@ export class RegisterComponent {
           name: '',
           email: '',
           passwd: '',
-          confirm: '',
           role: '',
           domain: ''
         };

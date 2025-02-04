@@ -25,8 +25,8 @@ export class ApiService {
     return { headers }
   }
 
-  registration(table:string, data:object){
-    return this.http.post(this.server + '/reg/' + table, data);
+  registration(data: object) {
+    return this.http.post(this.server + '/users/create-user', data, this.tokenHeader());
   }
 
 }
