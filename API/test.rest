@@ -3,21 +3,50 @@ POST http://localhost:3000/users/create-user
 Content-Type: application/json
 
 {
-  "username": "user2",
-  "email": "user1@example.com",
-  "domain": "user1domain2"
+  "username": "csizma",
+  "email": "beretizsofiaa@gmail.com",
+  "domain": "csizma",
+  "packageId": 2
 }
 
-### Teszt: Felhasználók listázása (Adminisztrátorként)
-GET http://localhost:3000/users/
 
-### Teszt: Felhasználó módosítása
-PATCH http://localhost:3000/users/5
+### User adatok lekérése (Admin szükséges)
+GET  http://localhost:3000/users
 Content-Type: application/json
 
 {
-  "email": "updateduser1@example.com"
+  "userId": "2a42e4d3-d6d3-4b5d-a5f2-348c3a07a223"
 }
 
-### Teszt: Felhasználó törlése
-DELETE http://localhost:3000/users/6
+### Tárhelycsomagok lekérése
+GET http://localhost:3000/packages
+
+### Új tárhelycsomag létrehozása (Admin szükséges)
+POST http://localhost:3000/packages
+Content-Type: application/json
+
+{
+  "userId": "03622cb0-0c5e-418d-ab91-ad76b5327980",
+  "name": "Prémium csomag",
+  "price": 5000,
+  "description": "Nagyobb tárhely és gyorsabb teljesítmény"
+}
+
+### Tárhelycsomag szerkesztése (Admin szükséges)
+PUT http://localhost:3000/packages/4
+Content-Type: application/json
+
+{
+  "userId": "2a42e4d3-d6d3-4b5d-a5f2-348c3a07a223",
+  "name": "Frissített prémium csomag",
+  "price": 5500,
+  "description": "Még nagyobb tárhely és jobb teljesítmény"
+}
+
+### Tárhelycsomag törlése (Admin szükséges)
+DELETE http://localhost:3000/packages/5
+Content-Type: application/json
+
+{
+  "userId": "03622cb0-0c5e-418d-ab91-ad76b5327980"
+}

@@ -1,19 +1,20 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, BeforeInsert } from "typeorm";
+import * as bcrypt from "bcrypt";
 
 export enum UserRole {
     ADMIN = "admin",
     USER = "user"
-  }
+}
 
 @Entity()
 export class User extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid") // UUID alapú azonosító
+  id: string;
 
   @Column()
   name: string;
 
-  @Column()
+  @Column({ unique: true }) // E-mail egyedi kell legyen
   email: string;
 
   @Column()
@@ -26,6 +27,12 @@ export class User extends BaseEntity {
   })
   role: UserRole;
 
-  @Column()
+  @Column({ unique: true }) // Domain is egyedi kell legyen
   domain: string;
+
+  // 📌 Jelszó titkosítása mentés előtt
+  @BeforeInsert()
+  hashPassword() {
+    this.password = bcrypt.hashSync(this.password, 10);
+  }
 }

@@ -1,110 +1,137 @@
 import express, { Router } from "express";
 import { AppDataSource } from "../data-source";
-import { User } from "../entity/User";
-import mysql from "mysql";
+import { User, UserRole } from "../entity/User";
+import { Subscription } from "../entity/Subscription";
+import mysql from "mysql2/promise";
 import { generatePassword } from "../utils/password";
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+import bcrypt from "bcryptjs";
+import { isAdmin } from "../utils/isadmin";
 
-const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  multipleStatements: true,
-});
+dotenv.config();
 
 const router = Router();
 
+// 📌 MySQL kapcsolat
+const db = mysql.createPool({
+  host: "localhost",
+  user: "root",
+  password: "",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
 
-// Felhasználó létrehozása (regisztráció + adatbázis létrehozása)
+// 📌 SMTP beállítások az e-mail küldéshez
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
+  secure: true,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
+
+// 📌 Új felhasználó létrehozása
 router.post('/create-user', async (req: any, res: any) => {
-    console.log("Request Headers:", req.headers);  // Logolják a kérés fejléceit
-  console.log("Request Body:", req.body); 
-  const { username, email, domain } = req.body;
-  console.log(req.body);
-
-  if (!username || !email || !domain) {
-    return res.status(400).json({ message: 'Username, email, and domain are required!' });
-  }
-
-  const password = generatePassword();
-
-  // Felhasználó adatainak létrehozása
-  const user = new User();
-  user.name = username;
-  user.email = email;
-  user.password = password;
-  user.domain = domain;
-
   try {
-    await user.save();  // Save user to database
+    const { username, email, domain, packageId } = req.body;
 
-    // Adatbázis létrehozása
-    const createDatabaseSql = `CREATE DATABASE \`${domain}\`;`;
-    db.query(createDatabaseSql, (err, results) => {
-      if (err) {
-        return res.status(500).json({ message: 'Database creation failed', error: err });
-      }
+    if (!username || !email || !domain || !packageId) {
+      return res.status(400).json({ message: 'Hiányzó adatok! (username, email, domain, packageId szükséges)' });
+    }
 
-      // Felhasználó létrehozása az adatbázishoz
-      const createUserSql = `CREATE USER '${domain}'@'localhost' IDENTIFIED BY '${password}';`;
-      db.query(createUserSql, (err, results) => {
-        if (err) {
-          return res.status(500).json({ message: 'User creation failed', error: err });
-        }
-
-        const grantPrivilegesSql = `GRANT ALL PRIVILEGES ON \`${domain}\`.* TO '${domain}'@'localhost';`;
-        db.query(grantPrivilegesSql, (err, results) => {
-          if (err) {
-            return res.status(500).json({ message: 'Failed to grant privileges', error: err });
-          }
-
-          res.status(200).json({
-            message: 'User and database created successfully!',
-            user: {
-              name: user.name,
-              email: user.email,
-              domain: user.domain,
-              role: user.role, // optional, can be added if necessary
-            },
-            password,
-          });
-        });
-      });
+    const existingUser = await AppDataSource.getRepository(User).findOne({
+      where: [{ email }, { domain }]
     });
+
+    if (existingUser) {
+      return res.status(400).json({ message: 'Ez az e-mail vagy domain már létezik!' });
+    }
+
+    const rawPassword = generatePassword();
+    const hashedPassword = await bcrypt.hash(rawPassword, 10);
+
+    const databaseName = `13a_${domain.replace(/\W/g, '')}`;
+    const mysqlUser = `13a_${domain.replace(/\W/g, '')}`;
+    const mysqlHost = 'localhost';
+
+    // 📌 Felhasználó létrehozása
+    const user = new User();
+    user.name = username;
+    user.email = email;
+    user.password = hashedPassword;
+    user.domain = domain;
+
+    await AppDataSource.getRepository(User).save(user);
+
+    // 📌 Előfizetés mentése
+    const subscription = new Subscription();
+    subscription.user = user;
+    subscription.date = new Date();
+
+    await AppDataSource.getRepository(Subscription).save(subscription);
+
+    // 📌 Adatbázis és MySQL felhasználó létrehozása
+    const connection = await db.getConnection();
+    try {
+      await connection.query(`CREATE DATABASE \`${databaseName}\`;`);
+      await connection.query(`CREATE USER '${mysqlUser}'@'${mysqlHost}' IDENTIFIED BY '${rawPassword}';`);
+      await connection.query(`GRANT ALL PRIVILEGES ON \`${databaseName}\`.* TO '${mysqlUser}'@'${mysqlHost}';`);
+      await connection.query(`FLUSH PRIVILEGES;`);
+    } finally {
+      connection.release();
+    }
+
+    // 📌 E-mail küldése
+    const mailOptions = {
+      from: `"Tárhelyszolgáltató" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: "Előfizetés visszaigazolása",
+      html: `
+        <h2>Kedves ${username}!</h2>
+        <p>Sikeresen előfizettél a szolgáltatásra.</p>
+        <h3>Belépési adatok:</h3>
+        <ul>
+          <li><strong>Felhasználónév:</strong> ${mysqlUser}</li>
+          <li><strong>Jelszó:</strong> ${rawPassword} (Kérlek, változtasd meg!)</li>
+          <li><strong>Adatbázis:</strong> ${databaseName}</li>
+          <li><strong>Host:</strong> ${mysqlHost}</li>
+        </ul>
+        <p>Üdvözlettel,<br>Tárhelyszolgáltató csapat</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(201).json({
+      message: 'Felhasználó és előfizetés létrehozva! E-mail elküldve.',
+      user: { name: user.name, email: user.email, domain: user.domain },
+      subscription: { date: subscription.date },
+      database: databaseName,
+      mysqlUser,
+      password: "A jelszót az e-mail tartalmazza.",
+    });
+
   } catch (error) {
-    res.status(500).json({ message: 'Error saving user', error: error });
+    console.error("Hiba a felhasználó létrehozásakor:", error);
+    res.status(500).json({ message: 'Hiba történt a regisztráció során', error });
   }
 });
 
-// Felhasználók listázása (Adminisztrátor szerep)
-router.get('/', async (req, res) => {
+// 📌 Felhasználók kilistázása (csak adminoknak)
+router.get('/', isAdmin, async (_req: any, res: any) => {
   try {
-    const users = await AppDataSource.getRepository(User).find();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching users', error });
-  }
-});
+    const users = await AppDataSource.getRepository(User).find({
+      select: ["id", "name", "email", "domain", "role"], // Válaszd ki, mely mezőket szeretnél visszakapni
+    });
 
-// Felhasználó módosítása
-router.patch('/:id', async (req, res) => {
-  const userId = parseInt(req.params.id);
-  try {
-    await AppDataSource.getRepository(User).update(userId, req.body);
-    const updatedUser = await AppDataSource.getRepository(User).findOneBy({ id: userId });
-    res.json(updatedUser);
+    res.status(200).json({ users });
   } catch (error) {
-    res.status(500).json({ message: 'Error updating user', error });
-  }
-});
-
-// Felhasználó törlése
-router.delete('/:id', async (req, res) => {
-  const userId = parseInt(req.params.id);
-  try {
-    await AppDataSource.getRepository(User).delete(userId);
-    res.status(200).json({ message: 'User deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error deleting user', error });
+    console.error("Hiba a felhasználók kilistázása során:", error);
+    res.status(500).json({ message: "Hiba történt a felhasználók lekérésekor.", error });
   }
 });
 
