@@ -1,0 +1,29 @@
+.form-card {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 350px;
+    text-align: center;
+    margin-top: 5rem; // 👈 Ez segít, hogy lejjebb legyen
+  }
+
+  .btn {
+    background: #1e3c72 !important;
+    border: none;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 1rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-align: center;
+    width: 10rem;
+    margin: auto;
+  
+    &:hover {
+      background: #163a6f;
+    }
+}
