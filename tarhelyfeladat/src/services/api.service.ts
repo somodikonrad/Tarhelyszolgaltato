@@ -1,6 +1,8 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
+import { User } from './auth.service';
+import { Observable } from 'rxjs';
 
 
 @Injectable({
@@ -25,8 +27,8 @@ export class ApiService {
     return { headers }
   }
 
-  registration(data: object) {
-    return this.http.post(this.server + '/users/create-user', data, this.tokenHeader());
+  registration(user: User): Observable<any> {
+    return this.http.post<any>(`${this.server}/users/register`, user);
   }
 
 }

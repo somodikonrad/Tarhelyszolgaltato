@@ -1,9 +1,9 @@
 export interface User {
-    id: string;
-    name: string;
+    id: any;
+    username: string;
     email: string;
-    passwd: string;
+    password: string;
     role: string;
-    domain: string;
+    token: string;
   }
   

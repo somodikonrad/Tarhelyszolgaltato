@@ -27,35 +27,49 @@ export class RegisterComponent {
 
   user: User = {
     id: '',
-    name: '',
+    username: '',
     email: '',
-    passwd: '',
+    password: '',
     role: '',
-    domain: ''
+    token: ''
   };
 
   registration() {
-    this.api.registration(this.user).subscribe((res: any) => {
-      this.invalidFields = res.invalid;
-      if (this.invalidFields.length == 0) {
-        // ✅ Helyes MessageService hívás
-        this.messageService.add({ severity: 'success', summary: 'Siker', detail: res.message });
-
-        // Mezők ürítése sikeres regisztráció után
-        this.user = {
-          id: '',
-          name: '',
-          email: '',
-          passwd: '',
-          role: '',
-          domain: ''
-        };
-      } else {
-        // ❌ Hiba esetén error üzenet
-        this.messageService.add({ severity: 'error', summary: 'Hiba', detail: res.message });
+    this.api.registration(this.user).subscribe(
+      (res: any) => {
+        // Ha nincs 'invalid' mező, akkor inicializáljuk üres tömbbel
+        this.invalidFields = res.invalid || [];  // Biztosítjuk, hogy 'invalidFields' mindig tömb legyen
+  
+        if (this.invalidFields.length == 0) {
+          // ✅ Sikeres regisztráció
+          this.messageService.add({ severity: 'success', summary: 'Siker', detail: res.message });
+  
+          // Mezők ürítése sikeres regisztráció után
+          this.user = {
+            id: '',
+            username: '',
+            email: '',
+            password: '',
+            role: '',
+            token: ''
+          };
+        } else {
+          // ❌ Hiba esetén error üzenet
+          this.messageService.add({ severity: 'error', summary: 'Hiba', detail: res.message });
+        }
+      },
+      (error) => {
+        // Ha valami hiba történt
+        console.error("Hiba történt a regisztráció során:", error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Hiba',
+          detail: error?.error?.message || 'Hiba történt a regisztráció során',
+        });
       }
-    });
+    );
   }
+  
 
   isInvalid(field: string) {
     return this.invalidFields.includes(field);
