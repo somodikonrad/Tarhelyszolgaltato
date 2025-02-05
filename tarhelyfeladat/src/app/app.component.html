@@ -1,7 +1,9 @@
-<div class="container">
-  
-  <app-header></app-header> 
-  <p-menubar [model]="items"></p-menubar> <!-- Menü felülre helyezve -->
-  <router-outlet></router-outlet>
-  <app-footer></app-footer> 
-</div>
+<app-header></app-header>
+
+<!-- Asztali nézetben normál menü -->
+<p-menubar [model]="items"></p-menubar>
+
+<!-- Az oldal tartalma -->
+<router-outlet></router-outlet>
+
+<app-footer></app-footer>

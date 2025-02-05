@@ -1,0 +1,89 @@
+.flex {
+  display: flex;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.gap-3 {
+  gap: 1rem; /* Kicsit csökkentett távolság */
+}
+
+.w-full {
+  width: 100%;
+}
+
+/* Csomagokat tartalmazó div */
+.package-container {
+  display: flex;
+  flex-wrap: wrap; /* Engedélyezzük, hogy a kártyák új sorba kerüljenek */
+  justify-content: center;
+  align-items: stretch;
+  gap: 0.8rem;
+  padding: 2rem;
+  margin-top: 3rem;
+}
+
+/* Kártyák méretének növelése és egyforma magasság beállítása */
+p-card {
+  width: calc(33% - 0.8rem); /* Kiegyensúlyozott elrendezés és a gap figyelembevételével */
+  min-width: 280px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1.2rem;
+}
+
+/* A szöveges tartalom kitölti a helyet, hogy a kártyák magassága egyforma legyen */
+p-card p {
+  flex-grow: 1;
+}
+
+/* A gomb mindig a kártya alján legyen */
+p-card ng-template[pTemplate="footer"] {
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+}
+
+/* Felugró ablak stílusok */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Átlátszó háttér */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.popup-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.popup input,
+.popup textarea {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.6rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}

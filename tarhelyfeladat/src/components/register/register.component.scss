@@ -4,7 +4,7 @@
     border-radius: 12px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     width: 100%;
-    max-width: 350px;
+    max-width: 490px;
     text-align: center;
     margin-top: 5rem; // 👈 Ez segít, hogy lejjebb legyen
   }
@@ -21,7 +21,7 @@
     cursor: pointer;
     text-align: center;
     width: 10rem;
-    margin: auto;
+    margin: 10px;
   
     &:hover {
       background: #163a6f;

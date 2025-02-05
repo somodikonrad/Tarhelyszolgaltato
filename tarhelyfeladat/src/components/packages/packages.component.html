@@ -1,13 +1,39 @@
-<p-card header="Advanced Card" subheader="Card Subheader" [style]="{ width: '360px' }">
-    <ng-template pTemplate="header">
-        <img alt="Card" src="https://primefaces.org/cdn/primeng/images/card-ng.jpg" />
-    </ng-template>
-    <p>
-        Legkomolyabb előfizetések...
-    </p>
-    <ng-template pTemplate="footer">
-        <div class="flex gap-3 mt-1">
-            <p-button label="Vásárlás" class="w-full" styleClass="w-full" />
+<div class="package-container">
+    <p-card
+      *ngFor="let pkg of packages"
+      [header]="pkg.name"
+      [subheader]="'Ár: ' + pkg.price + ' USD'"
+    >
+      <p>{{ pkg.description }}</p>
+      <ng-template pTemplate="footer">
+        <div class="flex gap-2 mt-1">
+          <p-button label="Vásárlás" class="w-full"></p-button>
         </div>
-    </ng-template>
-</p-card>
+      </ng-template>
+    </p-card>
+  </div>
+  
+  <!-- Saját csomag létrehozása gomb csak admin számára -->
+  <p-button *ngIf="isAdmin" label="Új csomag létrehozása" icon="pi pi-plus" (click)="showCreatePackageForm()" class="w-full"></p-button>
+  
+  <!-- Felugró ablak a csomag létrehozásához -->
+  <div *ngIf="createPackageFormVisible" class="popup-overlay">
+    <div class="popup">
+      <h3>Új csomag létrehozása</h3>
+      
+      <label for="pkgName">Csomag neve</label>
+      <input id="pkgName" [(ngModel)]="newPackage.name" type="text" placeholder="Csomag neve" class="p-inputtext p-component"/>
+      
+      <label for="pkgPrice">Ár (USD)</label>
+      <input id="pkgPrice" [(ngModel)]="newPackage.price" type="number" placeholder="Csomag ára" class="p-inputtext p-component"/>
+      
+      <label for="pkgDescription">Leírás</label>
+      <textarea id="pkgDescription" [(ngModel)]="newPackage.description" placeholder="Csomag leírása" class="p-inputtext p-component"></textarea>
+      
+      <div class="popup-actions">
+        <p-button label="Mentés" icon="pi pi-check" (click)="savePackage()" [disabled]="!newPackage.name || !newPackage.price || !newPackage.description"></p-button>
+        <p-button label="Mégsem" icon="pi pi-times" (click)="cancelCreatePackage()" class="p-button-secondary"></p-button>
+      </div>
+    </div>
+  </div>
+  

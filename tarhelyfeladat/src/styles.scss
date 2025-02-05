@@ -1,114 +1,149 @@
-/* SCSS stílus a regisztrációs oldalhoz */
-@import "primeng/resources/themes/lara-dark-amber/theme.css";
 @import "primeng/resources/primeng.css";
 @import "primeflex/primeflex.css";
 @import "primeicons/primeicons.css";
 
-
-
 html, body {
-    height: 100%;
-    margin: 0;
-    overflow: hidden;
-  }
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-  
-  header {
-    bottom: 1rem;
-    display: flex;
-    position: relative;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    width: 100%;
-    margin-bottom: 2rem;
-    color: white;
-  
-    h1 {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #ffffff;
-    }
-  
-    h6 {
-      font-size: 1rem;
-      font-weight: normal;
-      color: #ffffff;
-    }
-  }
-  
-  .form-card {
-    background: #ffffff;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    width: 100%;
-    max-width: 350px;
-    text-align: center;
-    min-height: 400px;
-  }
-  
-  .form-title {
-    margin-bottom: 1.5rem;
-    color: #1e3c72;
-    font-size: 1.5rem;
-    font-weight: bold;
-  }
-  
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  
-    label {
-      font-weight: 600;
-      font-size: 0.9rem;
-      text-align: left;
-    }
-  
-    input {
-      padding: 0.75rem;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-  
-      &:focus {
-        border-color: #1e3c72;
-        box-shadow: 0 0 5px rgba(30, 60, 114, 0.5);
-        outline: none;
-      }
-    }
-  }
-  
-  .btn {
-    background: #1e3c72;
-    border: none;
-    color: white;
-    font-weight: bold;
-    font-size: 1rem;
-    padding: 0.75rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    text-align: center;
-  
-    &:hover {
-      background: #163a6f;
-    }
-  }
-  
-  p-menubar {
-    width: 106.7%;
-    position: sticky;
-    top: 5;
-    left: 5;
-    
-  }
+/* === Asztali Menü === */
+/* === Asztali Menü === */
+p-menubar {
+  width: 100%;
+  background-color: #2b3d6d; /* Sötét kék háttér */
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+p-menubar .p-menubar {
+  width: 100%;
+  border-radius: 0 !important;
+  background-color: #2563EB; /* Világosabb kék háttér */
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+p-menubar .p-menuitem {
+  padding: 0.8rem 1.5rem;
+}
+
+p-menubar .p-menuitem-link {
+  color: #ffffff !important; /* Menüpontok szövege fehér */
+  text-decoration: none !important;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 10px 15px;
+  transition: background 0.3s ease, color 0.3s ease;
+  border-radius: 5px;
+}
+
+p-menubar .p-menuitem-link:hover {
+  background-color: #ffcc00 !important; /* Hover esetén sárga háttér */
+  color: black !important; /* Hover esetén fekete szöveg */
+}
+
+p-menubar .p-menuitem-link.p-highlight {
+  background-color: #ffcc00 !important; /* Kiemelt menüpont sárga háttér */
+  color: black !important; /* Kiemelt menüpont szövege fekete */
+}
+
+/* A menüpontok ikonjainak színei */
+p-menubar .p-menuitem-link .pi {
+  color: #ffffff !important; /* Ikon színe fehér */
+}
+
+p-menubar .p-menuitem-link:hover .pi {
+  color: black !important; /* Ikon színe fekete hover esetén */
+}
+
+
+/* === PanelMenu === */
+p-panelMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+}
+
+/* === Main container === */
+main {
+  padding-top: 4rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f8f8f8; /* Világos háttér */
+}
+
+/* === Bejelentkezési űrlap === */
+.login-card {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  width: 100%;
+  max-width: 350px;
+}
+
+.login-title {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2b3d6d; /* Sötét kék cím */
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-group label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: left;
+  color: #333; /* Sötétebb szín a címkékhez */
+}
+
+.input-group input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+  border-color: #2563EB;
+  box-shadow: 0 0 5px rgba(30, 60, 114, 0.5);
+  outline: none;
+}
+
+::ng-deep .p-dialog {
+  z-index: 9999 !important;
+}
+
+* {
+  animation: none !important;
+  transition: none !important;
+}

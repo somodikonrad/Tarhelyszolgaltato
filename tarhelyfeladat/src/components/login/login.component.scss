@@ -1,16 +1,16 @@
-  .login-card {
-    background: #ffffff;
-    padding: 3rem;
-    border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    width: 100%;
-    max-width: 450px;
-    text-align: center;
-    margin-top: 5rem; // 👈 Ez segít, hogy lejjebb legyen
-  }
+.login-card {
+  background: #ffffff;
+  padding: 3rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 490px;
+  text-align: center;
+  margin-top: 5rem; // 👈 Ez segít, hogy lejjebb legyen
+}
   
   .login-btn {
-    background: #1e3c72 !important;
+    background: #2563EB !important;
     border: none;
     color: white;
     font-weight: bold;
