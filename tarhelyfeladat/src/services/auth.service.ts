@@ -1,14 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-// Felhasználói adatmodell (opcionális, ha van ilyen az alkalmazásodban)
-export interface User {
-  id: number;
-  username: string;
-  role: string;  // Pl. 'admin', 'user'
-  token: string;
-}
+import { User } from '../interfaces/user';
 
 @Injectable({
   providedIn: 'root'
