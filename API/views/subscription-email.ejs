@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Előfizetés Visszaigazolása</title>
+  <style>
+    /* Alapvető stílusok a kompatibilitás érdekében */
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      color: #495057;
+    }
+    table {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      color: #007bff;
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+    h3 {
+      color: #343a40;
+      margin-bottom: 10px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+    li {
+      margin: 10px 0;
+      line-height: 1.5;
+      font-size: 15px;
+    }
+    .highlight {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 30px;
+      background-color: #007bff;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 30px;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 20px;
+    }
+    .btn:hover {
+      background-color: #0056b3;
+    }
+    .footer {
+      text-align: center;
+      font-size: 14px;
+      color: #6c757d;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <table>
+    <tr>
+      <td>
+        <div style="text-align: center;">
+          <h2>Kedves <%= user.name %>!</h2>
+          <p>Sikeresen előfizettél a szolgáltatásunkra.</p>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <h3>Belépési adatok:</h3>
+          <ul>
+            <li><strong>Felhasználónév:</strong> <%= mysqlUser %></li>
+            <li><strong>Jelszó:</strong> <span class="highlight"><%= rawPassword %></span> (Kérlek, változtasd meg a biztonság érdekében!)</li>
+            <li><strong>Adatbázis neve:</strong> <%= databaseName %></li>
+            <li><strong>Domain:</strong> <%= domain %></li>
+            <li><strong>Host:</strong> <%= mysqlHost %></li>
+          </ul>
+        </div>
+
+        <div>
+          <p>Ha bármilyen kérdésed van, ne habozz kapcsolatba lépni velünk!</p>
+          <p>Üdvözlettel,<br>Tárhelyszolgáltató csapat</p>
+        </div>
+
+       
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

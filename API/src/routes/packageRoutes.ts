@@ -1,11 +1,12 @@
 import express, { Router } from "express";
 import { AppDataSource } from "../data-source";
 import { Package } from "../entity/Package";
-import { isAdmin } from "../utils/isadmin";
+import { isAdmin } from "../utils/isAdmin";
+import { tokencheck } from "../routes/userRoutes";  // Import tokencheck middleware
 
 const router = Router();
 
-// 📌 Tárhelycsomagok listázása
+// 📌 Tárhelycsomagok listázása (No authentication required here)
 router.get('/', async (_req, res) => {
   try {
     const packages = await AppDataSource.getRepository(Package).find({
@@ -17,9 +18,9 @@ router.get('/', async (_req, res) => {
   }
 });
 
-// 📌 Új tárhelycsomag létrehozása
-router.post('/', isAdmin, async (req: any, res: any) => { 
-  try {  // 🔹 Hiányzott a `try` blokk nyitása
+// 📌 Új tárhelycsomag létrehozása (Authentication required)
+router.post('/', tokencheck, isAdmin, async (req: any, res: any) => { 
+  try {
     const { name, price, description } = req.body;
 
     if (!name || !price || !description) {
@@ -34,14 +35,13 @@ router.post('/', isAdmin, async (req: any, res: any) => {
     await AppDataSource.getRepository(Package).save(newPackage);
 
     res.status(201).json({ message: "Tárhelycsomag létrehozva!", package: newPackage });
-
-  } catch (error) { 
+  } catch (error) {
     res.status(500).json({ message: "Hiba történt a csomag létrehozása során.", error });
   }
 });
 
-// 📌 Tárhelycsomag törlése
-router.delete('/:id', isAdmin, async (req: any, res: any) => {  
+// 📌 Tárhelycsomag törlése (Authentication and admin check required)
+router.delete('/:id', tokencheck, isAdmin, async (req: any, res: any) => {  
   try {
     const { id } = req.params;
     const packageRepo = AppDataSource.getRepository(Package);
@@ -60,37 +60,38 @@ router.delete('/:id', isAdmin, async (req: any, res: any) => {
   }
 });
 
-// 📌 Tárhelycsomag frissítése
-router.put('/:id', isAdmin, async (req: any, res: any) => {
-    try {
-      const { id } = req.params;
-      const { name, price, description } = req.body;
-  
-      if (!name || !price || !description) {
-        return res.status(400).json({ message: "Hiányzó adatok!" });
-      }
-  
-      const packageRepo = AppDataSource.getRepository(Package);
-  
-      // 🔹 Ellenőrizzük, hogy létezik-e a csomag
-      const existingPackage = await packageRepo.findOne({ where: { id: Number(id) } });
-  
-      if (!existingPackage) {
-        return res.status(404).json({ message: "Csomag nem található!" });
-      }
-  
-      // 🔹 Frissítjük a csomagot
-      existingPackage.name = name;
-      existingPackage.price = price;
-      existingPackage.description = description;
-  
-      // 🔹 Mentjük az új adatokat
-      await packageRepo.save(existingPackage);
-  
-      res.status(200).json({ message: "Csomag frissítve!", package: existingPackage });
-  
-    } catch (error) {
-      res.status(500).json({ message: "Hiba történt a csomag frissítése során.", error });
+// 📌 Tárhelycsomag frissítése (Authentication and admin check required)
+router.put('/:id', tokencheck, isAdmin, async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const { name, price, description } = req.body;
+
+    if (!name || !price || !description) {
+      return res.status(400).json({ message: "Hiányzó adatok!" });
     }
-  });
+
+    const packageRepo = AppDataSource.getRepository(Package);
+
+    // 🔹 Ellenőrizzük, hogy létezik-e a csomag
+    const existingPackage = await packageRepo.findOne({ where: { id: Number(id) } });
+
+    if (!existingPackage) {
+      return res.status(404).json({ message: "Csomag nem található!" });
+    }
+
+    // 🔹 Frissítjük a csomagot
+    existingPackage.name = name;
+    existingPackage.price = price;
+    existingPackage.description = description;
+
+    // 🔹 Mentjük az új adatokat
+    await packageRepo.save(existingPackage);
+
+    res.status(200).json({ message: "Csomag frissítve!", package: existingPackage });
+
+  } catch (error) {
+    res.status(500).json({ message: "Hiba történt a csomag frissítése során.", error });
+  }
+});
+
 export default router;

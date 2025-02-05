@@ -1,32 +1,40 @@
 ### Teszt: Felhasználó létrehozása
-POST http://localhost:3000/users/create-user
+POST http://localhost:3000/users/register
 Content-Type: application/json
 
 {
-  "username": "csizma",
-  "email": "beretizsofiaa@gmail.com",
-  "domain": "csizma",
-  "packageId": 2
+  "username": "Csizma fii",
+  "email": "beretizsofia310@gmail.com",
+  "password": "Titkosjelszo12344"
 }
 
-
-### User adatok lekérése (Admin szükséges)
-GET  http://localhost:3000/users
+### Felhasználó bejelentkezéses
+POST http://localhost:3000/users/login
 Content-Type: application/json
 
 {
-  "userId": "2a42e4d3-d6d3-4b5d-a5f2-348c3a07a223"
+  "email": "beretizsofia310@gmail.com",
+  "password": "Titkosjelszo12344"
+}
+
+### User adatok lekérése (Admin szükséges)
+GET http://localhost:3000/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImRhYzczN2Q4LWY2MTMtNDFhZi05YWVhLWQ5YmNiNjE2Mjk0YiIsImVtYWlsIjoiYmVyZXRpenNvZmlhMzEwQGdtYWlsLmNvbSIsImlhdCI6MTczODc0Nzg0MiwiZXhwIjoxNzM4ODM0MjQyfQ.9Tx9Jr1rnR00_oWOYwZa1f3V-vEX6Fpea2FSl171poE
+
+Content-Type: application/json
+{
 }
 
 ### Tárhelycsomagok lekérése
 GET http://localhost:3000/packages
+Content-Type: application/json
 
 ### Új tárhelycsomag létrehozása (Admin szükséges)
 POST http://localhost:3000/packages
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImRhYzczN2Q4LWY2MTMtNDFhZi05YWVhLWQ5YmNiNjE2Mjk0YiIsImVtYWlsIjoiYmVyZXRpenNvZmlhMzEwQGdtYWlsLmNvbSIsImlhdCI6MTczODc0Nzg0MiwiZXhwIjoxNzM4ODM0MjQyfQ.9Tx9Jr1rnR00_oWOYwZa1f3V-vEX6Fpea2FSl171poE
 
 {
-  "userId": "03622cb0-0c5e-418d-ab91-ad76b5327980",
   "name": "Prémium csomag",
   "price": 5000,
   "description": "Nagyobb tárhely és gyorsabb teljesítmény"
@@ -35,9 +43,9 @@ Content-Type: application/json
 ### Tárhelycsomag szerkesztése (Admin szükséges)
 PUT http://localhost:3000/packages/4
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImRhYzczN2Q4LWY2MTMtNDFhZi05YWVhLWQ5YmNiNjE2Mjk0YiIsImVtYWlsIjoiYmVyZXRpenNvZmlhMzEwQGdtYWlsLmNvbSIsImlhdCI6MTczODc0Nzg0MiwiZXhwIjoxNzM4ODM0MjQyfQ.9Tx9Jr1rnR00_oWOYwZa1f3V-vEX6Fpea2FSl171poE
 
 {
-  "userId": "2a42e4d3-d6d3-4b5d-a5f2-348c3a07a223",
   "name": "Frissített prémium csomag",
   "price": 5500,
   "description": "Még nagyobb tárhely és jobb teljesítmény"
@@ -46,7 +54,18 @@ Content-Type: application/json
 ### Tárhelycsomag törlése (Admin szükséges)
 DELETE http://localhost:3000/packages/5
 Content-Type: application/json
+Authorization: Bearer <token>
 
 {
   "userId": "03622cb0-0c5e-418d-ab91-ad76b5327980"
+}
+
+### Előfizetés létrehozása (User szükséges)
+POST http://localhost:3000/users/subscribe
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImFkYWIwYzQwLWM2N2ItNGU5NC1iN2M1LWQ3MGYwN2EzODY0YSIsImVtYWlsIjoiYmVyZXRpenNvZmlhMzEwQGdtYWlsLmNvbSIsImlhdCI6MTczODc1MTMyMSwiZXhwIjoxNzM4ODM3NzIxfQ.Y-IAUVZEYbF-xHfGGOHMtB4_zGaE9tBoldS2Uwh2yVU
+
+{
+  "packageId": 2
+ 
 }
