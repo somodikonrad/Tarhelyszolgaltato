@@ -17,4 +17,7 @@ export class Subscription extends BaseEntity {
 
   @Column()
   date: Date;
+
+  @Column({ unique: true }) // Domain is egyedi kell legyen
+  domain: string;
 }

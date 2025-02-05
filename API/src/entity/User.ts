@@ -27,12 +27,5 @@ export class User extends BaseEntity {
   })
   role: UserRole;
 
-  @Column({ unique: true }) // Domain is egyedi kell legyen
-  domain: string;
-
-  // 📌 Jelszó titkosítása mentés előtt
-  @BeforeInsert()
-  hashPassword() {
-    this.password = bcrypt.hashSync(this.password, 10);
-  }
+  
 }
