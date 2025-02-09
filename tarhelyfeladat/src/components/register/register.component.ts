@@ -37,7 +37,7 @@ export class RegisterComponent {
     this.api.registration(this.user).subscribe((res:any) => {
       this.invalidFields = res.invalid;
       if (this.invalidFields.length == 0){
-        this.message.showMessage('OK', res.message, 'success');
+        //this.message.showMessage('OK', res.message, 'success');
         this.user = {
           id: '',
           username: '',
@@ -46,7 +46,7 @@ export class RegisterComponent {
           role: '',
         }
       }else{
-        this.message.showMessage('HIBA', res.message, 'danger');
+        //this.message.showMessage('HIBA', res.message, 'danger');
       }
     });
   }
