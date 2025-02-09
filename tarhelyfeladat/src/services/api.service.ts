@@ -29,7 +29,7 @@ export class ApiService {
   }
 
   registration(user: User): Observable<any> {
-    console.log(user);  // Ellenőrizd, hogy mit küldesz a szervernek
+  
     return this.http.post<any>(`${this.server}/users/register`, user).pipe(
       catchError(error => {
         // Hibák kezelése
