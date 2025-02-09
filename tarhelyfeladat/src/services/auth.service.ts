@@ -14,15 +14,16 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   // Bejelentkezés: autentikációs API hívás és felhasználó tárolása
-  login(username: string, password: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/users/login`, { username, password });
+  login(email: string, password: string, isAdmin?: boolean): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/users/login`, { email, password });
   }
 
   // A bejelentkezett felhasználó elmentése
-  setCurrentUser(user: User, token: string) {
+  setCurrentUser(user: User, token: string, isAdmin: boolean) {
     this.currentUser = user;
     localStorage.setItem('currentUser', JSON.stringify(user));  // Tárolás a helyi tárolóban (localStorage)
     localStorage.setItem(this.tokenName, token);  // Token mentése a helyi tárolóban
+    localStorage.setItem('isAdmin', JSON.stringify(isAdmin)); // Admin státusz mentése
   }
 
   // A felhasználó kijelentkezése
@@ -30,6 +31,7 @@ export class AuthService {
     this.currentUser = null;
     localStorage.removeItem('currentUser');  // Eltávolítjuk a helyi tárolóból
     localStorage.removeItem(this.tokenName);  // Token törlése
+    localStorage.removeItem('isAdmin'); // Admin státusz törlése
   }
 
   // Aktuális felhasználó visszakérése
@@ -47,11 +49,8 @@ export class AuthService {
 
   // Admin jogosultság ellenőrzése
   isAdmin(): boolean {
-    const user = this.getCurrentUser();
-    if (!user || !user.role) {
-      return false; // Ha nincs felhasználó vagy nincs role, nem admin
-    }
-    return user.role === 'admin'; // Ha van role, akkor ellenőrizzük
+    const isAdmin = localStorage.getItem('isAdmin');
+    return isAdmin ? JSON.parse(isAdmin) : false;  // Ha az isAdmin tárolt adat létezik, visszaadjuk, különben false
   }
 
   // Bejelentkezett-e a felhasználó?

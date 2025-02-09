@@ -48,8 +48,8 @@ export class ApiService {
     );
   }
 
-  login(username: string, password: string): Observable<any> {
-    return this.http.post<any>(`${this.server}/users/login`, { username, password }).pipe(
+  login(email: string, password: string): Observable<any> {
+    return this.http.post<any>(`${this.server}/users/login`, { email, password }).pipe(
       catchError(error => {
         console.error('Login failed', error);
         return of(error);

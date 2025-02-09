@@ -3,8 +3,8 @@
     <h2 class="form-title">Bejelentkezés</h2>
     <form (ngSubmit)="login()">
       <div class="input-group">
-        <label for="username">Felhasználónév</label>
-        <input type="text" id="username" name="username" [(ngModel)]="user.username" required />
+        <label for="username">Email cím</label>
+        <input type="text" id="email" name="email" [(ngModel)]="user.email" required />
       </div>
       <div class="input-group">
         <label for="password">Jelszó</label>
