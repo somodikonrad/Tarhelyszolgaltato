@@ -7,7 +7,7 @@
       <p>{{ pkg.description }}</p>
       <ng-template pTemplate="footer">
         <div class="flex gap-2 mt-1">
-          <p-button label="Vásárlás" class="w-full"></p-button>
+          <p-button (click)="Buy(pkg.id)" label="Vásárlás" class="w-full"></p-button>
         </div>
       </ng-template>
     </p-card>

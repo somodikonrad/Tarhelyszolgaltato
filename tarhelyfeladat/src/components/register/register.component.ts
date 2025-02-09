@@ -4,11 +4,12 @@ import { MessageService } from '../../services/message.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { User } from '../../interfaces/user';
+import { Router, RouterModule  } from '@angular/router';
 
 @Component({
   selector: 'app-registration',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, RouterModule],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
@@ -16,7 +17,8 @@ import { User } from '../../interfaces/user';
 export class RegisterComponent {
   constructor(
     private api: ApiService,
-    private message: MessageService
+    private message: MessageService,
+    private router: Router
   ){}
 
   invalidFields:string[] = [];
@@ -35,28 +37,31 @@ export class RegisterComponent {
       (res: any) => {
         console.log('Válasz a backend-től:', res); // A válasz naplózása
   
-        // Ha a backend válaszában van hibaüzenet
-        if (res?.message) {
-          this.message.showMessage('HIBA', res.error.message, 'danger'); // Hibaüzenet megjelenítése
-        } else {
-          // Sikeres regisztráció
-          this.message.showMessage('OK', 'Sikeres regisztráció!', 'success');
+        // Ha van hibaüzenet a válaszban
+        if (res?.error?.message) {
+          this.message.showMessage('HIBA', res.error.message, 'danger'); 
+          return; // Ha hiba van, nem folytatjuk tovább
         }
   
-        // Az adatok nullázása, ha sikeres a regisztráció
-        this.user = {
-          id: '',
-          username: '',
-          email: '',
-          password: '',
-          role: ''
-        };
+        // Sikeres regisztráció esetén token mentése
+        if (res?.token) {
+          console.log('Token mentése:', res.token);
+          localStorage.setItem('token', res.token);
+        } else {
+          console.warn('⚠️ Nincs token a válaszban!');
+        }
+  
+        // Sikeres regisztráció üzenet és átirányítás
+        this.message.showMessage('OK', 'Sikeres regisztráció!', 'success');
+        this.router.navigateByUrl('/packages');
+  
+        // Az adatok nullázása
+        this.user = { id: '', username: '', email: '', password: '', role: '' };
       },
       (err) => {
-        // Hibakezelés: Ha hibát kapunk a backend-től
         console.error('Hiba történt a regisztráció során:', err);
-        
-        // Ha a hibaüzenet a backend válaszából jön
+  
+        // Ha a hiba a backend válaszából jön
         const errorMessage = err?.error?.message || 'Ismeretlen hiba történt!';
         
         // Hibás mezők listája
@@ -69,6 +74,7 @@ export class RegisterComponent {
       }
     );
   }
+  
   
   
 

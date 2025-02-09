@@ -16,27 +16,40 @@ export class ApiService {
   private tokenName = environment.tokenName;
   private server = environment.serverUrl;
 
-  getToken(): String | null {
-    return localStorage.getItem(this.tokenName);
+  getToken(): string | null {
+    return localStorage.getItem('token'); // Ne az environment változóból vedd, hanem közvetlenül!
   }
+  
 
   tokenHeader(): { headers: HttpHeaders } {
     const token = this.getToken();
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-    return { headers };
+    if (!token) {
+      console.warn('Nincs token a localStorage-ben!');
+      return { headers: new HttpHeaders() }; // Üres fejléc, ha nincs token
+    }
+    return {
+      headers: new HttpHeaders({
+        'Authorization': `Bearer ${token}`
+      })
+    };
   }
+  
 
   registration(user: User): Observable<any> {
   
     return this.http.post<any>(`${this.server}/users/register`, user).pipe(
       catchError(error => {
-        // Hibák kezelése
-        console.error('Registration failed', error);  // Hibák konzolra kiírása
-        return of(error);  // Visszaadjuk a hibát, hogy a frontend is kezelhesse
+
+        console.error('Registration failed', error);  
+        return of(error);  
       })
     );
   }
+  subscribe(data: object) {
+    return this.http.post(`${this.server}/users/subscribe`, data, this.tokenHeader());
+  }
+  
+  
 
+  
 }

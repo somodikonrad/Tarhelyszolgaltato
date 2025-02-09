@@ -112,7 +112,8 @@ router.post("/register", async (req: any, res: any) => {
     
     res.status(201).json({
       user: { name: user.name, email: user.email },
-      invalid: []  // Ha nincs hiba, akkor üres tömböt adunk vissza
+      invalid: [] , // Ha nincs hiba, akkor üres tömböt adunk vissza
+      token: generateToken(user)
     });
 
   } catch (error) {
@@ -221,9 +222,9 @@ router.post("/subscribe", tokencheck, async (req: any, res: any) => {
 
     const connection = await db.getConnection();
     try {
-      await connection.query(`CREATE DATABASE \`${databaseName}\`;`);
-      await connection.query(`CREATE USER '${mysqlUser}'@'${mysqlHost}' IDENTIFIED BY '${rawPassword}';`);
-      await connection.query(`GRANT ALL PRIVILEGES ON \`${databaseName}\`.* TO '${mysqlUser}'@'${mysqlHost}';`);
+      await connection.query("CREATE DATABASE ??;", [databaseName]);
+      await connection.query("CREATE USER ??@?? IDENTIFIED BY ?;", [mysqlUser, mysqlHost, rawPassword]);
+      await connection.query("GRANT ALL PRIVILEGES ON ??.* TO ??@??;", [databaseName, mysqlUser, mysqlHost]);
       await connection.query(`FLUSH PRIVILEGES;`);
     } finally {
       connection.release();
