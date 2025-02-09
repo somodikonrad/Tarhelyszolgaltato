@@ -7,6 +7,8 @@ import { MenuItem } from 'primeng/api';
 import { HeaderComponent } from '../components/header/header.component';
 import { FooterComponent } from '../components/footer/footer.component';
 import { DialogModule } from 'primeng/dialog';
+import { MessageService } from '../services/message.service';
+import { AlertComponent } from '../components/alert/alert.component';
 
 
 @Component({
@@ -20,7 +22,7 @@ import { DialogModule } from 'primeng/dialog';
     MenubarModule,
     PanelMenuModule,
     RouterModule,
-    DialogModule
+    DialogModule, AlertComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

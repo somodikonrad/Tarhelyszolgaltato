@@ -1,10 +1,27 @@
-import express, { Router } from "express";
+import express, { Router, NextFunction } from "express";
 import { AppDataSource } from "../data-source";
 import { Package } from "../entity/Package";
 import { isAdmin } from "../utils/isAdmin";
-import { tokencheck } from "../routes/userRoutes";  // Import tokencheck middleware
+import jwt from "jsonwebtoken";
 
 const router = Router();
+
+function tokencheck(req: any, res: any, next: NextFunction) {
+  const authHeader = req.header('Authorization');
+  if (!authHeader) {
+    return res.status(400).send('Jelentkezz be!');
+  }
+
+  const token = authHeader.split(' ')[1]; // A Bearer token kinyerése
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(decoded); // Dekódolt token kiíratása
+    req.user = decoded;  // A dekódolt tokenet hozzárendeled a req.user-hez
+    next(); // Ha érvényes a token, megy tovább
+  } catch (error) {
+    return res.status(400).send('Hibás vagy lejárt token!');
+  }
+}
 
 // 📌 Tárhelycsomagok listázása (No authentication required here)
 router.get('/', async (_req, res) => {
@@ -19,12 +36,16 @@ router.get('/', async (_req, res) => {
 });
 
 // 📌 Új tárhelycsomag létrehozása (Authentication required)
-router.post('/', tokencheck, isAdmin, async (req: any, res: any) => { 
+router.post('/', tokencheck, isAdmin, async (req: any, res: any) => {
+  let invalidFields = [];  // A hibás mezők tárolása
   try {
     const { name, price, description } = req.body;
 
     if (!name || !price || !description) {
-      return res.status(400).json({ message: "Hiányzó adatok!" });
+      if (!name) invalidFields.push('name');
+      if (!price) invalidFields.push('price');
+      if (!description) invalidFields.push('description');
+      return res.status(400).json({ message: "Hiányzó adatok!", invalid: invalidFields });
     }
 
     const newPackage = new Package();
@@ -41,11 +62,17 @@ router.post('/', tokencheck, isAdmin, async (req: any, res: any) => {
 });
 
 // 📌 Tárhelycsomag törlése (Authentication and admin check required)
-router.delete('/:id', tokencheck, isAdmin, async (req: any, res: any) => {  
+router.delete('/:id', tokencheck, isAdmin, async (req: any, res: any) => {
+  let invalidFields = [];  // A hibás mezők tárolása
   try {
     const { id } = req.params;
-    const packageRepo = AppDataSource.getRepository(Package);
 
+    if (!id) {
+      invalidFields.push('id');
+      return res.status(400).json({ message: "Hiányzó csomag ID!", invalid: invalidFields });
+    }
+
+    const packageRepo = AppDataSource.getRepository(Package);
     const existingPackage = await packageRepo.findOne({ where: { id: Number(id) } });
 
     if (!existingPackage) {
@@ -62,12 +89,21 @@ router.delete('/:id', tokencheck, isAdmin, async (req: any, res: any) => {
 
 // 📌 Tárhelycsomag frissítése (Authentication and admin check required)
 router.put('/:id', tokencheck, isAdmin, async (req: any, res: any) => {
+  let invalidFields = [];  // A hibás mezők tárolása
   try {
     const { id } = req.params;
     const { name, price, description } = req.body;
 
+    if (!id) {
+      invalidFields.push('id');
+      return res.status(400).json({ message: "Hiányzó csomag ID!", invalid: invalidFields });
+    }
+
     if (!name || !price || !description) {
-      return res.status(400).json({ message: "Hiányzó adatok!" });
+      if (!name) invalidFields.push('name');
+      if (!price) invalidFields.push('price');
+      if (!description) invalidFields.push('description');
+      return res.status(400).json({ message: "Hiányzó adatok!", invalid: invalidFields });
     }
 
     const packageRepo = AppDataSource.getRepository(Package);

@@ -12,6 +12,7 @@ import { isAdmin } from "../utils/isAdmin";
 const jwt = require('jsonwebtoken');
 dotenv.config();
 import ejs from "ejs";
+import { invalid } from "joi";
 
 const router = Router();
 
@@ -34,6 +35,7 @@ const transporter = nodemailer.createTransport({
     pass: process.env.SMTP_PASS,
   },
 });
+
 function generateToken(user: any) {
   return jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1d' });
 }
@@ -63,20 +65,26 @@ function validatePassword(password: string): boolean {
 
 // 📌 Regisztráció
 router.post("/register", async (req: any, res: any) => {
+  let invalidFields = [];  // A hibás mezők tárolása
   try {
     const { username, email, password } = req.body;
 
     if (!username || !email || !password) {
-      return res.status(400).json({ message: "Hiányzó adatok! (username, email, password szükséges)" });
+      if (!username) invalidFields.push('username');
+      if (!email) invalidFields.push('email');
+      if (!password) invalidFields.push('password');
+      
+      return res.status(400).json({ message: "Hiányzó adatok! (username, email, password szükséges)", invalid: invalidFields });
     }
 
     if (!validatePassword(password)) {
+      invalidFields.push('password');
       return res.status(400).json({ message: "A jelszó nem felel meg az erősségi követelményeknek!" });
     }
 
     const existingUser = await AppDataSource.getRepository(User).findOne({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({ message: "Ez az e-mail már létezik!" });
+      return res.status(400).json({ message: "Ez az e-mail már létezik!", invalid: ['email'] });
     }
 
     // Jelszó hash-elése bcrypt-tel
@@ -103,19 +111,23 @@ router.post("/register", async (req: any, res: any) => {
 
 // 📌 Bejelentkezés
 router.post("/login", async (req: any, res: any) => {
+  let invalidFields = [];  // A hibás mezők tárolása
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Hiányzó adatok! (email, password szükséges)" });
+      if (!email) invalidFields.push('email');
+      if (!password) invalidFields.push('password');
+      
+      return res.status(400).json({ message: "Hiányzó adatok! (email, password szükséges)", invalid: invalidFields });
     }
 
     const user = await AppDataSource.getRepository(User).findOne({ where: { email } });
     if (!user) {
-      return res.status(400).json({ message: "Felhasználó nem található!" });
+      invalidFields.push('user');
+      return res.status(400).json({ message: "Felhasználó nem található!", invalid: invalidFields });
     }
- 
-    // Correct password comparison
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
@@ -129,7 +141,7 @@ router.post("/login", async (req: any, res: any) => {
 
   } catch (error) {
     console.error("Hiba a bejelentkezés során:", error);
-    res.status(500).json({ message: "Hiba történt a bejelentkezés során", error });
+    res.status(500).json({ message: "Hiba történt a bejelentkezés során" + error });
   }
 });
 
@@ -143,49 +155,46 @@ router.get('/', tokencheck, isAdmin, async (_req: any, res: any) => {
     res.status(200).json({ users });
   } catch (error) {
     console.error("Hiba a felhasználók kilistázása során:", error);
-    res.status(500).json({ message: "Hiba történt a felhasználók lekérésekor.", error });
+    res.status(500).json({ message: "Hiba történt a felhasználók lekérésekor." + error });
   }
 });
 
-
 // 📌 Felhasználói előfizetés (egy domain per user, csak bejelentkezett felhasználóknak)
 router.post("/subscribe", tokencheck, async (req: any, res: any) => {
+  let invalidFields = [];  // A hibás mezők tárolása
   try {
     const { packageId } = req.body;
 
     if (!packageId) {
-      return res.status(400).json({ message: "Hiányzó adat! (packageId szükséges)" });
+      invalidFields.push('packageId');
+      return res.status(400).json({ message: "Hiányzó adat! (packageId szükséges)", invalid: invalidFields });
     }
 
-    // 🔹 Ellenőrizzük, hogy a bejelentkezett felhasználó létezik-e
     const user = await AppDataSource.getRepository(User).findOne({ where: { id: req.user?.userId } });
     if (!user) {
-      return res.status(404).json({ message: "Felhasználó nem található!" });
+      invalidFields.push('user');
+      return res.status(404).json({ message: "Felhasználó nem található!", invalid: invalidFields });
     }
 
-    // 🔹 Ellenőrizzük, hogy a felhasználónak már van-e domainje (több domain nem engedélyezett)
     const existingSubscription = await AppDataSource.getRepository(Subscription).findOne({ where: { user: user } });
     if (existingSubscription) {
       return res.status(400).json({ message: "Már van előfizetésed!" });
     }
 
-    // 🔹 A domain név a felhasználó nevéből generálódik
     const domain = user.name.trim().toLowerCase().replace(/\s+/g, '').replace(/\W/g, '');
 
-    // 🔹 Csomag ellenőrzése
     const packageData = await AppDataSource.getRepository(Package).findOne({ where: { id: packageId } });
     if (!packageData) {
-      return res.status(404).json({ message: "Tárhelycsomag nem található!" });
+      invalidFields.push('packageData');
+      return res.status(404).json({ message: "Tárhelycsomag nem található!", invalid: invalidFields });
     }
 
-    // 🔹 Új adatbázis létrehozása
     const rawPassword = generatePassword();
-    const hashedPassword = await bcrypt.hash(rawPassword, 10);  
+    const hashedPassword = await bcrypt.hash(rawPassword, 10);
     const databaseName = `13a_${domain}`;
     const mysqlUser = `13a_${domain}`;
     const mysqlHost = "localhost";
 
-    // 🔹 Új előfizetés létrehozása
     const subscription = new Subscription();
     subscription.user = user;
     subscription.package = packageData;
@@ -194,7 +203,6 @@ router.post("/subscribe", tokencheck, async (req: any, res: any) => {
 
     await AppDataSource.getRepository(Subscription).save(subscription);
 
-    // 🔹 Adatbázis és felhasználó létrehozása MySQL-ben
     const connection = await db.getConnection();
     try {
       await connection.query(`CREATE DATABASE \`${databaseName}\`;`);
@@ -205,7 +213,6 @@ router.post("/subscribe", tokencheck, async (req: any, res: any) => {
       connection.release();
     }
 
-    // 🔹 E-mail küldése a felhasználónak
     ejs.renderFile("views/subscription-email.ejs", { user, mysqlUser, rawPassword, databaseName, domain, mysqlHost }, async (err, html) => {
       if (err) {
         console.error("E-mail sablon renderelési hiba:", err);
@@ -236,4 +243,3 @@ router.post("/subscribe", tokencheck, async (req: any, res: any) => {
 });
 
 export default router;
-export { tokencheck, generateToken };

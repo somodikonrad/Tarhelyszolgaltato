@@ -1,5 +1,6 @@
-<p-toast></p-toast> <!-- Ez kell az üzenetek megjelenítéséhez -->
 
+
+<!-- A regisztrációs űrlap -->
 <div class="form-card">
   <h2 class="form-title">Registration</h2>
   <form (ngSubmit)="registration()">
@@ -12,9 +13,9 @@
       <input type="text" id="username" name="name" [(ngModel)]="user.username" required />
     </div>
     <div class="input-group">
-        <label for="password">Jelszó</label>
-        <input type="password" id="password" name="password" [(ngModel)]="user.password" required />
-      </div>
-    <button type="submit" class="btn" onclick="re">Register</button>
+      <label for="password">Jelszó</label>
+      <input type="password" id="password" name="password" [(ngModel)]="user.password" required />
+    </div>
+    <button type="submit" class="btn">Register</button>
   </form>
 </div>
