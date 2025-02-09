@@ -33,14 +33,15 @@ export class LoginComponent {
     role: ''
   }
  
-  login(){
-    this.api.login(this.user.username, this.user.password).subscribe((res:any) => {
-      this.invalidFields = res.invalid;
+  login() {
+    this.api.login(this.user.username, this.user.password).subscribe((res: any) => {
+      console.log(res);  // Debugging log, hogy megnézd a választ
+      this.invalidFields = res.invalid || []; // Ha nincs 'invalid', akkor üres tömböt rendelünk hozzá
       if (this.invalidFields.length == 0){
         this.message.showMessage('OK', res.message, 'success');
         this.auth.login(this.user.username, this.user.password);
-        this.router.navigateByUrl('/rooms');
-      }else{
+        this.router.navigateByUrl('/packages');
+      } else {
         this.message.showMessage('HIBA', res.message, 'danger');
       }
     });
