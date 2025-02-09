@@ -29,9 +29,9 @@ router.get('/', async (_req, res) => {
     const packages = await AppDataSource.getRepository(Package).find({
       select: ["id", "name", "price", "description"]
     });
-    res.status(200).json(packages);
+    res.status(200).send(packages);
   } catch (error) {
-    res.status(500).json({ message: "Hiba történt a csomagok lekérésekor.", error });
+    res.status(500).send({ message: "Hiba történt a csomagok lekérésekor.", error });
   }
 });
 
@@ -45,7 +45,7 @@ router.post('/', tokencheck, isAdmin, async (req: any, res: any) => {
       if (!name) invalidFields.push('name');
       if (!price) invalidFields.push('price');
       if (!description) invalidFields.push('description');
-      return res.status(400).json({ message: "Hiányzó adatok!", invalid: invalidFields });
+      return res.status(400).send({ message: "Hiányzó adatok!", invalid: invalidFields });
     }
 
     const newPackage = new Package();
@@ -55,9 +55,9 @@ router.post('/', tokencheck, isAdmin, async (req: any, res: any) => {
 
     await AppDataSource.getRepository(Package).save(newPackage);
 
-    res.status(201).json({ message: "Tárhelycsomag létrehozva!", package: newPackage });
+    res.status(201).send({ message: "Tárhelycsomag létrehozva!", package: newPackage });
   } catch (error) {
-    res.status(500).json({ message: "Hiba történt a csomag létrehozása során.", error });
+    res.status(500).send({ message: "Hiba történt a csomag létrehozása során.", error });
   }
 });
 
@@ -69,21 +69,21 @@ router.delete('/:id', tokencheck, isAdmin, async (req: any, res: any) => {
 
     if (!id) {
       invalidFields.push('id');
-      return res.status(400).json({ message: "Hiányzó csomag ID!", invalid: invalidFields });
+      return res.status(400).send({ message: "Hiányzó csomag ID!", invalid: invalidFields });
     }
 
     const packageRepo = AppDataSource.getRepository(Package);
     const existingPackage = await packageRepo.findOne({ where: { id: Number(id) } });
 
     if (!existingPackage) {
-      return res.status(404).json({ message: "Csomag nem található!" });
+      return res.status(404).send({ message: "Csomag nem található!" });
     }
 
     await packageRepo.remove(existingPackage);
 
-    res.status(200).json({ message: "Csomag törölve!" });
+    res.status(200).send({ message: "Csomag törölve!" });
   } catch (error) {
-    res.status(500).json({ message: "Hiba a csomag törlése során.", error });
+    res.status(500).send({ message: "Hiba a csomag törlése során.", error });
   }
 });
 
@@ -96,14 +96,14 @@ router.put('/:id', tokencheck, isAdmin, async (req: any, res: any) => {
 
     if (!id) {
       invalidFields.push('id');
-      return res.status(400).json({ message: "Hiányzó csomag ID!", invalid: invalidFields });
+      return res.status(400).send({ message: "Hiányzó csomag ID!", invalid: invalidFields });
     }
 
     if (!name || !price || !description) {
       if (!name) invalidFields.push('name');
       if (!price) invalidFields.push('price');
       if (!description) invalidFields.push('description');
-      return res.status(400).json({ message: "Hiányzó adatok!", invalid: invalidFields });
+      return res.status(400).send({ message: "Hiányzó adatok!", invalid: invalidFields });
     }
 
     const packageRepo = AppDataSource.getRepository(Package);
@@ -112,7 +112,7 @@ router.put('/:id', tokencheck, isAdmin, async (req: any, res: any) => {
     const existingPackage = await packageRepo.findOne({ where: { id: Number(id) } });
 
     if (!existingPackage) {
-      return res.status(404).json({ message: "Csomag nem található!" });
+      return res.status(404).send({ message: "Csomag nem található!" });
     }
 
     // 🔹 Frissítjük a csomagot
@@ -123,10 +123,10 @@ router.put('/:id', tokencheck, isAdmin, async (req: any, res: any) => {
     // 🔹 Mentjük az új adatokat
     await packageRepo.save(existingPackage);
 
-    res.status(200).json({ message: "Csomag frissítve!", package: existingPackage });
+    res.status(200).send({ message: "Csomag frissítve!", package: existingPackage });
 
   } catch (error) {
-    res.status(500).json({ message: "Hiba történt a csomag frissítése során.", error });
+    res.status(500).send({ message: "Hiba történt a csomag frissítése során.", error });
   }
 });
 

@@ -1,76 +1,79 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-
 import { ApiService } from '../../services/api.service';
 import { MessageService } from '../../services/message.service';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { User } from '../../interfaces/user';
 
 @Component({
-  selector: 'app-register',
+  selector: 'app-registration',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-  ],
+  imports: [FormsModule, CommonModule],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
-export class RegisterComponent {
-  public messageService: MessageService;  // Ezt állítsuk public-ra
 
+export class RegisterComponent {
   constructor(
     private api: ApiService,
-    messageService: MessageService  // Injektáljuk a MessageService-et
-  ) {
-    this.messageService = messageService;
-  }
+    private message: MessageService
+  ){}
 
-  invalidFields: string[] = [];
-  user: User = {
+  invalidFields:string[] = [];
+
+  user:User = {
     id: '',
-    username: '',
+   username: '',
     email: '',
     password: '',
     role: ''
-  };
-
+  }
   registration() {
+    console.log('Felhasználó adatai:', this.user); // A felhasználói adatok logolása
+  
     this.api.registration(this.user).subscribe(
       (res: any) => {
-        // Ha a válasz státuszkódja 2xx, akkor itt kezeljük a sikeres választ
-        if (res && res.message) {
-          this.invalidFields = res.invalid || [];
-          if (this.invalidFields.length === 0) {
-            this.messageService.showMessage('OK', res.message, 'success');
-            this.user = {
-              id: '',
-              username: '',
-              email: '',
-              password: '',
-              role: ''
-            };
-          } else {
-            // Hibás mezők, ha van ilyen
-            this.messageService.showMessage('HIBA', res.message, 'error');
-          }
+        console.log('Válasz a backend-től:', res); // A válasz naplózása
+  
+        // Ha a backend válaszában van hibaüzenet
+        if (res?.message) {
+          this.message.showMessage('HIBA', res.error.message, 'danger'); // Hibaüzenet megjelenítése
         } else {
-          // Ha nincs üzenet, akkor a válasz hibát jelez
-          this.messageService.showMessage('HIBA', 'Valami hiba történt!', 'error');
+          // Sikeres regisztráció
+          this.message.showMessage('OK', 'Sikeres regisztráció!', 'success');
         }
+  
+        // Az adatok nullázása, ha sikeres a regisztráció
+        this.user = {
+          id: '',
+          username: '',
+          email: '',
+          password: '',
+          role: ''
+        };
       },
-      (error) => {
-        // Hibák kezelése itt
-        console.error('Registration failed', error);  // Hibák kiírása
-        this.messageService.showMessage('HIBA', 'A regisztráció sikertelen!', 'error');
+      (err) => {
+        // Hibakezelés: Ha hibát kapunk a backend-től
+        console.error('Hiba történt a regisztráció során:', err);
+        
+        // Ha a hibaüzenet a backend válaszából jön
+        const errorMessage = err?.error?.message || 'Ismeretlen hiba történt!';
+        
+        // Hibás mezők listája
+        if (err?.error?.invalid?.length) {
+          this.invalidFields = err.error.invalid;
+        }
+  
+        // Hibaüzenet megjelenítése
+        this.message.showMessage('HIBA', errorMessage, 'danger');
       }
     );
   }
   
   
-  // Ellenőrizzük, hogy egy mező hibás-e
-  isInvalid(field: string) {
+
+  isInvalid(field:string){
     return this.invalidFields.includes(field);
   }
-  
+
 }
