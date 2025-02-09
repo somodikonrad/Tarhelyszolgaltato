@@ -1,3 +1,4 @@
+/* Bejelentkezési űrlap stílusok */
 .login-card {
   background: #ffffff;
   padding: 3rem;
@@ -6,25 +7,53 @@
   width: 100%;
   max-width: 490px;
   text-align: center;
-  margin-top: 5rem; // 👈 Ez segít, hogy lejjebb legyen
+  margin-top: 5rem;
 }
-  
-  .login-btn {
-    background: #2563EB !important;
-    border: none;
-    color: white;
-    font-weight: bold;
-    font-size: 1.2rem;
-    padding: 1rem;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    text-align: center;
-    width: 10rem;
-    margin: auto;
-  
-    &:hover {
-      background: #163a6f;
-    }
+
+/* Gomb stílusok */
+.btn {
+  background: #1e3c72 !important;
+  border: none;
+  color: white;
+  font-weight: bold;
+  font-size: 1.2rem;
+  padding: 1rem;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-align: center;
+  width: 10rem;
+  margin: 10px;
+
+  &:hover {
+    background: #163a6f;
   }
-  
+}
+
+/* Input mezők stílusa */
+.input-group {
+  margin-bottom: 1.5rem;
+  text-align: left;
+
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    margin-top: 0.3rem;
+  }
+}
+
+/* Formázás és elrendezés */
+.form-title {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 2rem;
+}
