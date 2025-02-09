@@ -1,16 +1,16 @@
-
-    <div class="login-card">
-        <h2 class="login-title">Login</h2>
-        <div class="login-form">
-            <div class="input-group">
-                <label for="username">Username</label>
-                <input pInputText id="username" type="text" />
-            </div>
-            <div class="input-group">
-                <label for="password">Password</label>
-                <input pInputText id="password" type="password" />
-            </div>
-            <button pButton label="Login" icon="pi pi-user" class="login-btn"></button>
-        </div>
-    </div>
-
+<!-- A bejelentkezési űrlap -->
+<div class="login-card">
+    <h2 class="form-title">Bejelentkezés</h2>
+    <form (ngSubmit)="login()">
+      <div class="input-group">
+        <label for="username">Email cím</label>
+        <input type="text" id="email" name="email" [(ngModel)]="user.email" required />
+      </div>
+      <div class="input-group">
+        <label for="password">Jelszó</label>
+        <input type="password" id="password" name="password" [(ngModel)]="user.password" required />
+      </div>
+      <button type="submit" class="btn">Bejelentkezés</button>
+    </form>
+  </div>
+  

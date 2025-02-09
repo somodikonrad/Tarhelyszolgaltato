@@ -15,6 +15,7 @@ import ejs from "ejs";
 import { invalid } from "joi";
 
 const router = Router();
+
 const db = mysql.createPool({
   host: "localhost",
   user: "root",
@@ -62,11 +63,10 @@ function validatePassword(password: string): boolean {
   return passwordRegex.test(password);
 }
 
+// 📌 Regisztráció
 router.post("/register", async (req: any, res: any) => {
-  let invalidFields = [];
+  let invalidFields = [];  // A hibás mezők tárolása
   try {
-    console.log('Regisztrációs kérés érkezett:', req.body);  // Mi érkezik a frontend-ről?
-
     const { username, email, password } = req.body;
 
     if (!username || !email || !password) {
@@ -74,27 +74,17 @@ router.post("/register", async (req: any, res: any) => {
       if (!email) invalidFields.push('email');
       if (!password) invalidFields.push('password');
       
-      return res.status(400).json({ 
-        message: "Hiányzó adatok! (username, email, password szükséges)", 
-        invalid: invalidFields 
-      });
+      return res.status(400).json({ message: "Hiányzó adatok! (username, email, password szükséges)", invalid: invalidFields });
     }
 
     if (!validatePassword(password)) {
       invalidFields.push('password');
-      return res.status(400).json({ 
-        message: "A jelszó nem felel meg az erősségi követelményeknek!", 
-        invalid: invalidFields 
-      });
+      return res.status(400).json({ message: "A jelszó nem felel meg az erősségi követelményeknek!" });
     }
 
     const existingUser = await AppDataSource.getRepository(User).findOne({ where: { email } });
     if (existingUser) {
-      invalidFields.push('email');
-      return res.status(400).json({ 
-        message: "Ez az e-mail már létezik!", 
-        invalid: invalidFields 
-      });
+      return res.status(400).json({ message: "Ez az e-mail már létezik!", invalid: ['email'] });
     }
 
     // Jelszó hash-elése bcrypt-tel
@@ -107,24 +97,17 @@ router.post("/register", async (req: any, res: any) => {
 
     await AppDataSource.getRepository(User).save(user);
 
-    // Naplózzuk, hogy mi történik, amikor sikeres a regisztráció
-    console.log("Sikeres regisztráció:", user);
-    
     res.status(201).json({
+      message: "Sikeres regisztráció!",
       user: { name: user.name, email: user.email },
-      invalid: [] , // Ha nincs hiba, akkor üres tömböt adunk vissza
       token: generateToken(user)
     });
 
   } catch (error) {
     console.error("Hiba a regisztráció során:", error);
-    res.status(500).json({ 
-      message: "Hiba történt a regisztráció során", 
-      invalid: []  // Az esetleges hiba esetén is üres tömböt küldünk
-    });
+    res.status(500).json({ message: "Hiba történt a regisztráció során", error });
   }
 });
-
 
 // 📌 Bejelentkezés
 router.post("/login", async (req: any, res: any) => {
@@ -136,29 +119,29 @@ router.post("/login", async (req: any, res: any) => {
       if (!email) invalidFields.push('email');
       if (!password) invalidFields.push('password');
       
-      return res.status(400).send({ message: "Hiányzó adatok! (email, password szükséges)", invalid: invalidFields });
+      return res.status(400).json({ message: "Hiányzó adatok! (username, password szükséges)", invalid: invalidFields });
     }
 
     const user = await AppDataSource.getRepository(User).findOne({ where: { email } });
     if (!user) {
       invalidFields.push('user');
-      return res.status(400).send({ message: "Felhasználó nem található!", invalid: invalidFields });
+      return res.status(400).json({ message: "Felhasználó nem található!", invalid: invalidFields });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(400).send({ message: "Hibás jelszó!" });
+      return res.status(400).json({ message: "Hibás jelszó!" });
     }
 
-    res.status(200).send({
+    res.status(200).json({
       message: "Sikeres bejelentkezés!",
       token: generateToken(user)
     });
 
   } catch (error) {
     console.error("Hiba a bejelentkezés során:", error);
-    res.status(500).send({ message: "Hiba történt a bejelentkezés során" + error });
+    res.status(500).json({ message: "Hiba történt a bejelentkezés során" + error });
   }
 });
 
@@ -169,10 +152,10 @@ router.get('/', tokencheck, isAdmin, async (_req: any, res: any) => {
       select: ["id", "name", "email", "role"], // Válaszd ki, mely mezőket szeretnél visszakapni
     });
  
-    res.status(200).send({ users });
+    res.status(200).json({ users });
   } catch (error) {
     console.error("Hiba a felhasználók kilistázása során:", error);
-    res.status(500).send({ message: "Hiba történt a felhasználók lekérésekor." + error });
+    res.status(500).json({ message: "Hiba történt a felhasználók lekérésekor." + error });
   }
 });
 
@@ -184,18 +167,18 @@ router.post("/subscribe", tokencheck, async (req: any, res: any) => {
 
     if (!packageId) {
       invalidFields.push('packageId');
-      return res.status(400).send({ message: "Hiányzó adat! (packageId szükséges)", invalid: invalidFields });
+      return res.status(400).json({ message: "Hiányzó adat! (packageId szükséges)", invalid: invalidFields });
     }
 
     const user = await AppDataSource.getRepository(User).findOne({ where: { id: req.user?.userId } });
     if (!user) {
       invalidFields.push('user');
-      return res.status(404).send({ message: "Felhasználó nem található!", invalid: invalidFields });
+      return res.status(404).json({ message: "Felhasználó nem található!", invalid: invalidFields });
     }
 
     const existingSubscription = await AppDataSource.getRepository(Subscription).findOne({ where: { user: user } });
     if (existingSubscription) {
-      return res.status(400).send({ message: "Már van előfizetésed!" });
+      return res.status(400).json({ message: "Már van előfizetésed!" });
     }
 
     const domain = user.name.trim().toLowerCase().replace(/\s+/g, '').replace(/\W/g, '');
@@ -203,7 +186,7 @@ router.post("/subscribe", tokencheck, async (req: any, res: any) => {
     const packageData = await AppDataSource.getRepository(Package).findOne({ where: { id: packageId } });
     if (!packageData) {
       invalidFields.push('packageData');
-      return res.status(404).send({ message: "Tárhelycsomag nem található!", invalid: invalidFields });
+      return res.status(404).json({ message: "Tárhelycsomag nem található!", invalid: invalidFields });
     }
 
     const rawPassword = generatePassword();
@@ -233,7 +216,7 @@ router.post("/subscribe", tokencheck, async (req: any, res: any) => {
     ejs.renderFile("views/subscription-email.ejs", { user, mysqlUser, rawPassword, databaseName, domain, mysqlHost }, async (err, html) => {
       if (err) {
         console.error("E-mail sablon renderelési hiba:", err);
-        return res.status(500).send({ message: "Hiba történt az e-mail sablon renderelésekor", error: err });
+        return res.status(500).json({ message: "Hiba történt az e-mail sablon renderelésekor", error: err });
       }
 
       const mailOptions = {
@@ -246,16 +229,16 @@ router.post("/subscribe", tokencheck, async (req: any, res: any) => {
       try {
         await transporter.sendMail(mailOptions);
         console.log("E-mail sikeresen elküldve");
-        res.status(201).send({ message: "Előfizetés sikeres!", domain });
+        res.status(201).json({ message: "Előfizetés sikeres!", domain });
       } catch (error) {
         console.error("E-mail küldési hiba:", error);
-        res.status(500).send({ message: "Hiba történt az e-mail küldésekor", error });
+        res.status(500).json({ message: "Hiba történt az e-mail küldésekor", error });
       }
     });
 
   } catch (error) {
     console.error("Hiba az előfizetés során:", error);
-    res.status(500).send({ message: "Hiba történt az előfizetés során", error });
+    res.status(500).json({ message: "Hiba történt az előfizetés során", error });
   }
 });
 

@@ -9,7 +9,8 @@ import { FooterComponent } from '../components/footer/footer.component';
 import { DialogModule } from 'primeng/dialog';
 import { MessageService } from '../services/message.service';
 import { AlertComponent } from '../components/alert/alert.component';
-
+import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -25,37 +26,63 @@ import { AlertComponent } from '../components/alert/alert.component';
     DialogModule, AlertComponent
   ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  
+
   title = 'Public';
   items: MenuItem[] | undefined;
   isMobile: boolean = false;
   menuOpen: boolean = false;
 
-  ngOnInit(): void {
-    this.items = [
-      {
-        label: 'Regisztráció',
-        icon: 'pi pi-user-plus',
-        routerLink: '/'
-      },
-      {
-        label: 'Bejelentkezés',
-        icon: 'pi pi-user',
-        routerLink: '/login'
-      },
-      { 
-        label: 'Csomagválasztó',
-        icon: 'pi pi-shopping-bag',
-        routerLink: '/packages'
-      },
-    ];
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private messageService: MessageService
+  ) {}
 
+  ngOnInit(): void {
     this.checkScreenSize();
+    this.updateMenu();
   }
 
+  // A menüpontok frissítése a bejelentkezett felhasználó állapota alapján
+  updateMenu() {
+    if (this.authService.isLoggedIn()) {
+      this.items = [
+        {
+          label: 'Csomagválasztó',
+          icon: 'pi pi-shopping-bag',
+          routerLink: '/packages'
+        },
+        {
+          label: 'Kijelentkezés',
+          icon: 'pi pi-sign-out',
+          command: () => this.logout()
+        }
+      ];
+    } else {
+      this.items = [
+        {
+          label: 'Regisztráció',
+          icon: 'pi pi-user-plus',
+          routerLink: '/'
+        },
+        {
+          label: 'Bejelentkezés',
+          icon: 'pi pi-user',
+          routerLink: '/login'
+        },
+        {
+          label: 'Csomagválasztó',
+          icon: 'pi pi-shopping-bag',
+          routerLink: '/packages'
+        },
+      ];
+    }
+  }
+
+  // Bejelentkezés után frissítjük a menüt, hogy csak a kijelentkezés és a csomagválasztó jelenjen meg
   @HostListener('window:resize', [])
   checkScreenSize() {
     this.isMobile = window.innerWidth < 768;
@@ -63,5 +90,13 @@ export class AppComponent implements OnInit {
 
   toggleMenu() {
     this.menuOpen = !this.menuOpen;
+  }
+
+  // Kijelentkezés logika
+  logout() {
+    this.authService.logout();
+    this.messageService.showMessage('OK', 'Sikeres kijelentkezés!', 'success');
+    this.router.navigateByUrl('/login');
+    this.updateMenu(); // Frissítjük a menüt kijelentkezés után
   }
 }
