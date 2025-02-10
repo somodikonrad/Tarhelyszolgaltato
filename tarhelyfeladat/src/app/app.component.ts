@@ -11,6 +11,7 @@ import { MessageService } from '../services/message.service';
 import { AlertComponent } from '../components/alert/alert.component';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -23,17 +24,18 @@ import { Router } from '@angular/router';
     MenubarModule,
     PanelMenuModule,
     RouterModule,
-    DialogModule, AlertComponent
+    DialogModule, 
+    AlertComponent
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-
   title = 'Public';
-  items: MenuItem[] | undefined;
+  items: MenuItem[] = [];
   isMobile: boolean = false;
   menuOpen: boolean = false;
+  private authSubscription!: Subscription;
 
   constructor(
     private authService: AuthService,
@@ -43,10 +45,12 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.checkScreenSize();
-    this.updateMenu();
+    this.authSubscription = this.authService.currentUser$.subscribe(() => {
+      this.updateMenu(); // Minden bejelentkezés/kijelentkezés után frissítjük a menüt
+    });
+    this.updateMenu(); // Kezdeti állapot beállítása
   }
 
-  // A menüpontok frissítése a bejelentkezett felhasználó állapota alapján
   updateMenu() {
     if (this.authService.isLoggedIn()) {
       this.items = [
@@ -73,16 +77,11 @@ export class AppComponent implements OnInit {
           icon: 'pi pi-user',
           routerLink: '/login'
         },
-        {
-          label: 'Csomagválasztó',
-          icon: 'pi pi-shopping-bag',
-          routerLink: '/packages'
-        },
+        
       ];
     }
   }
 
-  // Bejelentkezés után frissítjük a menüt, hogy csak a kijelentkezés és a csomagválasztó jelenjen meg
   @HostListener('window:resize', [])
   checkScreenSize() {
     this.isMobile = window.innerWidth < 768;
@@ -92,11 +91,14 @@ export class AppComponent implements OnInit {
     this.menuOpen = !this.menuOpen;
   }
 
-  // Kijelentkezés logika
   logout() {
     this.authService.logout();
     this.messageService.showMessage('OK', 'Sikeres kijelentkezés!', 'success');
     this.router.navigateByUrl('/login');
-    this.updateMenu(); // Frissítjük a menüt kijelentkezés után
+    this.updateMenu();
+  }
+
+  ngOnDestroy(): void {
+    this.authSubscription.unsubscribe(); // Ne szivárogjon a memória
   }
 }

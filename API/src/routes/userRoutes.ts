@@ -37,23 +37,28 @@ const transporter = nodemailer.createTransport({
 });
 
 function generateToken(user: any) {
-  return jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1d' });
+  return jwt.sign(
+    { id: user.id, email: user.email, role: user.role },  // 📌 Role is belekerül a tokenbe
+    process.env.JWT_SECRET,
+    { expiresIn: '1d' }
+  );
 }
 
+
 function tokencheck(req: any, res: any, next: NextFunction) {
-  const authHeader = req.header('Authorization');
+  const authHeader = req.header("Authorization");
   if (!authHeader) {
-    return res.status(400).send('Jelentkezz be!');
+    return res.status(400).send("Jelentkezz be!");
   }
 
-  const token = authHeader.split(' ')[1]; // A Bearer token kinyerése
+  const token = authHeader.split(" ")[1]; // A Bearer token kinyerése
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(decoded); // Dekódolt token kiíratása
-    req.user = decoded;  // A dekódolt tokenet hozzárendeled a req.user-hez
-    next(); // Ha érvényes a token, megy tovább
+    console.log("Decoded token:", decoded);  // 📌 Itt ellenőrizheted, hogy benne van-e a `role`
+    req.user = decoded;
+    next();
   } catch (error) {
-    return res.status(400).send('Hibás vagy lejárt token!');
+    return res.status(400).send("Hibás vagy lejárt token!");
   }
 }
 

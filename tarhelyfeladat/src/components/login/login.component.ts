@@ -37,24 +37,23 @@ export class LoginComponent {
   login() {
     this.api.login(this.user.email, this.user.password).subscribe((res: any) => {
       console.log(res);  // Debugging log, hogy megnézd a választ
-
-      this.invalidFields = res.invalid || []; // Ha nincs 'invalid', akkor üres tömböt rendelünk hozzá
-
+  
+      this.invalidFields = res.invalid || [];
+  
       if (this.invalidFields.length === 0) {
         this.message.showMessage('OK', res.message, 'success');
-        
-        // Beállítjuk az isAdmin változót a válaszból
-        if (res.user && res.user.role === 'admin') {
-          this.isAdmin = true;
-        } else {
-          this.isAdmin = false;
-        }
-
-        // Elmentjük a felhasználói adatokat a helyi tárolóba vagy AuthService-be, hogy később elérjük
-        this.auth.login(this.user.email, this.user.password, this.isAdmin);
-
-        // Átirányítjuk a felhasználót a csomagok oldalára
-        this.router.navigateByUrl('/packages');
+  
+        // Az `AuthService` már kezeli az isAdmin értékét, így nem kell külön beállítani
+        this.auth.login(this.user.email, this.user.password).subscribe({
+          next: () => {
+            this.router.navigateByUrl('/packages'); // Sikeres login után átirányítás
+          },
+          error: (err) => {
+            console.error('Login error:', err);
+            this.message.showMessage('HIBA', res.error.message, 'danger');
+          }
+        });
+  
       } else {
         this.message.showMessage('HIBA', res.message, 'danger');
       }
