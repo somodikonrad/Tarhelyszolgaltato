@@ -25,16 +25,17 @@ constructor(private http: HttpClient) {}
       .pipe(
         tap(response => {
           console.log('Login API válasz:', response); // Debugging
+  
           if (response && response.token) {
-            // Létrehozzuk a user objektumot, ha nincs visszaadva az API-ban
             const user: User = {
-              id: response.token, // Ha a token tartalmazza a felhasználó azonosítóját
+              id: response.user.id, 
               email: email, // Az email, amit a felhasználó megadott
-              username: email.split('@')[0], // Például az email cím első része lehet a felhasználóneve
-              password: password, // A bejelentkezett felhasználó jelszava
-              role: response.isAdmin ? 'admin' : 'user' // A role alapja az isAdmin érték
+              username: response.user.username || '', // A username itt biztosan bekerül
+              password: password,
+              role: response.user.role // Ha role-t is át szeretnél venni
             };
   
+            // Frissítsd a currentUser objektumot
             this.setCurrentUser(user, response.token, response.isAdmin);
           } else {
             console.error("Hibás válasz: Nincs user objektum", response);
@@ -42,6 +43,7 @@ constructor(private http: HttpClient) {}
         })
       );
   }
+  
   
   
   

@@ -139,16 +139,24 @@ router.post("/login", async (req: any, res: any) => {
       return res.status(400).json({ message: "Hibás jelszó!" });
     }
 
+    // A válaszban most már tartalmazza a felhasználó nevét is
     res.status(200).json({
       message: "Sikeres bejelentkezés!",
-      token: generateToken(user)
+      token: generateToken(user),
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.name, // Itt a `name` mezőt használjuk, ami a `username`
+        role: user.role // Role szintén
+      }
     });
 
   } catch (error) {
     console.error("Hiba a bejelentkezés során:", error);
-    res.status(500).json({ message: "Hiba történt a bejelentkezés során" + error });
+    res.status(500).json({ message: "Hiba történt a bejelentkezés során", error });
   }
 });
+
 
 // 📌 Felhasználók kilistázása (csak adminoknak)
 router.get('/', tokencheck, isAdmin, async (_req: any, res: any) => {
