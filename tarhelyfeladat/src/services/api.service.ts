@@ -83,5 +83,11 @@ export class ApiService {
   }
   
   
+ // Felhasználók lekérése
+ getUsers(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.server}/users`); // Itt cseréld ki az API végpontot
+}
 
 }
+
+

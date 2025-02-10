@@ -12,6 +12,7 @@ import { AlertComponent } from '../components/alert/alert.component';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { RegisterComponent } from '../components/register/register.component';
 
 @Component({
   selector: 'app-root',
@@ -25,7 +26,8 @@ import { Subscription } from 'rxjs';
     PanelMenuModule,
     RouterModule,
     DialogModule, 
-    AlertComponent
+    AlertComponent,
+    RegisterComponent
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']

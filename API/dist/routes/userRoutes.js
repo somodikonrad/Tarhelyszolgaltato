@@ -222,8 +222,7 @@ router.post("/subscribe", tokencheck, (req, res) => __awaiter(void 0, void 0, vo
                 return res.status(500).send({ message: "Hiba történt az e-mail küldésekor!"+ err });
             } else {
                 console.log("E-mail sikeresen elküldve:", info.response);
-                res.status(200).send({ message: "Sikeres előfizetés!"
-             });
+                res.status(200).send();
             }
         });
 

@@ -87,7 +87,7 @@ export class PackagesComponent implements OnInit {
           this.message.showMessage('HIBA', response.message, 'danger'); // Hibaüzenet megjelenítése
         } else {
           // Sikeres előfizetés
-          this.message.showMessage('OK', response.message, 'success');
+          this.message.showMessage('OK', "Sikeres előfizetés", 'success');
           this.router.navigateByUrl('/packages');
         }
       },
