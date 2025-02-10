@@ -5,7 +5,7 @@ Content-Type: application/json
 {
   "username": "Csizma fii",
   "email": "beretizsofia310@gmail.com",
-  "password": "Titkosjelszo12344"
+  "password": "Nyuszika310"
 }
 
 ### Felhasználó bejelentkezéses
@@ -14,7 +14,7 @@ Content-Type: application/json
 
 {
   "email": "beretizsofia310@gmail.com",
-  "password": "Titkosjelszo12344"
+  "password": "Nyuszika310"
 }
 
 ### User adatok lekérése (Admin szükséges)

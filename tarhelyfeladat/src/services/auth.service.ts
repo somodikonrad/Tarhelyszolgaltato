@@ -19,30 +19,33 @@ public currentUser$ = this.currentUserSubject.asObservable();
 
 constructor(private http: HttpClient) {}
 
-  // Bejelentkezés API hívás + felhasználói adatok mentése
-  login(email: string, password: string): Observable<{ user: User; token: string; isAdmin: boolean }> {
-    return this.http.post<{ user: User; token: string; isAdmin: boolean }>(`${this.apiUrl}/users/login`, { email, password })
-      .pipe(
-        tap(response => {
-          console.log('Login API válasz:', response); // Debugging
-  
-          if (response && response.token) {
-            const user: User = {
-              id: response.user.id, 
-              email: email, // Az email, amit a felhasználó megadott
-              username: response.user.username || '', // A username itt biztosan bekerül
-              password: password,
-              role: response.user.role // Ha role-t is át szeretnél venni
-            };
-  
-            // Frissítsd a currentUser objektumot
-            this.setCurrentUser(user, response.token, response.isAdmin);
-          } else {
-            console.error("Hibás válasz: Nincs user objektum", response);
-          }
-        })
-      );
-  }
+login(email: string, password: string): Observable<{ user: User; token: string; isAdmin: boolean }> {
+  return this.http.post<{ user: User; token: string; isAdmin: boolean }>(`${this.apiUrl}/users/login`, { email, password })
+    .pipe(
+      tap(response => {
+        console.log('Login API válasz:', response); // Debugging
+
+        if (response && response.token) {
+          const user: User = {
+            id: response.user.id,
+            email: email, // Az email, amit a felhasználó megadott
+            username: response.user.username || '', // A username itt biztosan bekerül
+            password: password,
+            role: response.user.role // Ha role-t is át szeretnél venni
+          };
+
+          // Admin státusz beállítása
+          const isAdmin = response.user.role === 'admin'; // Feltételes operátor helyett
+
+          // Frissítsd a currentUser objektumot
+          this.setCurrentUser(user, response.token, isAdmin);
+        } else {
+          console.error("Hibás válasz: Nincs user objektum", response);
+        }
+      })
+    );
+}
+
   
   
   
