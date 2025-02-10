@@ -234,7 +234,7 @@ router.post("/subscribe", tokencheck, async (req: any, res: any) => {
       try {
         await transporter.sendMail(mailOptions);
         console.log("E-mail sikeresen elküldve");
-        res.status(201).json({ message: "Előfizetés sikeres!", domain });
+        res.status(201).json();
       } catch (error) {
         console.error("E-mail küldési hiba:", error);
         res.status(500).json({ message: "Hiba történt az e-mail küldésekor", error });

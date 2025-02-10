@@ -8,12 +8,13 @@ import { ApiService } from '../../services/api.service';
 import { MessageService } from '../../services/message.service';
 import { Router, RouterModule } from '@angular/router';
 import { Package } from '../../interfaces/package';
+import { TableModule } from 'primeng/table';
 
 
 @Component({
   selector: 'app-packages',
   standalone: true,
-  imports: [CommonModule, CardModule, ButtonModule, FormsModule, RouterModule],
+  imports: [CommonModule, CardModule, ButtonModule, FormsModule, RouterModule, TableModule],
   templateUrl: './packages.component.html',
   styleUrls: ['./packages.component.scss'],
 })
@@ -26,6 +27,10 @@ export class PackagesComponent implements OnInit {
     id: 0
   }; // Az új csomag adatai
   isAdmin: boolean = false; // Admin jogosultság kezelése
+  users: any[] = []; // Felhasználók listája
+
+ 
+  
 
   constructor(
     private authService: AuthService ,// AuthService injektálása
@@ -37,7 +42,9 @@ export class PackagesComponent implements OnInit {
   ngOnInit(): void {
     this.loadPackages(); // Csomagok betöltése
     this.isAdmin = this.authService.isAdmin(); // Admin jogosultság ellenőrzése
+    this.loadUsers(); // Felhasználók betöltése
   }
+  
 
   // Csomagok betöltése
   loadPackages() {
@@ -120,8 +127,22 @@ export class PackagesComponent implements OnInit {
     }
   }
   
-  
 
+  loadUsers() {
+    this.apiService.getUsers().subscribe((response: any) => {
+      this.users = response.users || []; // response.users-ből szedi ki a tömböt
+      console.log('Processed users:', this.users);
+    });
+  }
+  
+  
+  
+  cols = [
+    { field: 'id', header: 'ID' },
+    { field: 'name', header: 'Név' },
+    { field: 'email', header: 'E-mail' },
+    { field: 'role', header: 'Szerep' }
+  ];
   // Form bezárása
   cancelCreatePackage() {
     this.createPackageFormVisible = false;

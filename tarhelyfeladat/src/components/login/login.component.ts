@@ -43,23 +43,26 @@ export class LoginComponent {
       if (this.invalidFields.length === 0) {
         this.message.showMessage('OK', res.message, 'success');
   
-        // Az `AuthService` már kezeli az isAdmin értékét, így nem kell külön beállítani
+        // Az AuthService login hívás most már helyes típust használ
         this.auth.login(this.user.email, this.user.password).subscribe({
           next: () => {
             this.router.navigateByUrl('/packages'); // Sikeres login után átirányítás
           },
           error: (err) => {
             console.error('Login error:', err);
-            this.message.showMessage('HIBA', res.error.message, 'danger');
+            this.message.showMessage('HIBA', err.error.message || 'Ismeretlen hiba történt.', 'danger');
           }
         });
   
       } else {
         this.message.showMessage('HIBA', res.message, 'danger');
       }
+    }, (error) => {
+      console.error('API hívás hiba:', error);
+      this.message.showMessage('HIBA', 'A bejelentkezés sikertelen.', 'danger');
     });
   }
-
+  
   isInvalid(field: string) {
     return this.invalidFields.includes(field);
   }
