@@ -47,11 +47,17 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.checkScreenSize();
-    this.authSubscription = this.authService.currentUser$.subscribe(() => {
-      this.updateMenu(); // Minden bejelentkezés/kijelentkezés után frissítjük a menüt
+
+    // Az első frissítés még azelőtt, hogy a subscription elindulna
+    this.updateMenu();
+    
+    // Figyeljünk a user változásaira és frissítsük a menüt
+    this.authSubscription = this.authService.currentUser$.subscribe(user => {
+        console.log("currentUser változott:", user); // Debugging
+        this.updateMenu();
     });
-    this.updateMenu(); // Kezdeti állapot beállítása
-  }
+}
+
 
   updateMenu() {
     if (this.authService.isLoggedIn()) {
@@ -97,8 +103,8 @@ export class AppComponent implements OnInit {
     this.authService.logout();
     this.messageService.showMessage('OK', 'Sikeres kijelentkezés!', 'success');
     this.router.navigateByUrl('/login');
-    this.updateMenu();
-  }
+    this.updateMenu();  // Frissítjük a menüt kijelentkezés után
+}
 
   ngOnDestroy(): void {
     this.authSubscription.unsubscribe(); // Ne szivárogjon a memória

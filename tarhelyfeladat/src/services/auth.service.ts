@@ -15,9 +15,9 @@ export class AuthService {
   
   // Reaktív állapotkezelés
   private currentUserSubject = new BehaviorSubject<User | null>(this.loadUserFromStorage());
-  public currentUser$ = this.currentUserSubject.asObservable();
+public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+constructor(private http: HttpClient) {}
 
   // Bejelentkezés API hívás + felhasználói adatok mentése
   login(email: string, password: string): Observable<{ user: User; token: string; isAdmin: boolean }> {
@@ -25,10 +25,24 @@ export class AuthService {
       .pipe(
         tap(response => {
           console.log('Login API válasz:', response); // Debugging
-          this.setCurrentUser(response.user, response.token, response.isAdmin);
+          if (response && response.token) {
+            // Létrehozzuk a user objektumot, ha nincs visszaadva az API-ban
+            const user: User = {
+              id: response.token, // Ha a token tartalmazza a felhasználó azonosítóját
+              email: email, // Az email, amit a felhasználó megadott
+              username: email.split('@')[0], // Például az email cím első része lehet a felhasználóneve
+              password: password, // A bejelentkezett felhasználó jelszava
+              role: response.isAdmin ? 'admin' : 'user' // A role alapja az isAdmin érték
+            };
+  
+            this.setCurrentUser(user, response.token, response.isAdmin);
+          } else {
+            console.error("Hibás válasz: Nincs user objektum", response);
+          }
         })
       );
   }
+  
   
   
 
@@ -36,15 +50,21 @@ export class AuthService {
 
 
   private setCurrentUser(user: User, token: string, isAdmin: boolean): void {
-    const decodedToken: any = jwtDecode(token);
-    console.log("Decoded token:", decodedToken);
-  
-    localStorage.setItem("token", token);
-    localStorage.setItem("isAdmin", decodedToken.role === "admin" ? "true" : "false");
-    localStorage.setItem("currentUser", JSON.stringify(user)); // Felhasználói adatok mentése
-  
+    console.log("Mentett user:", user);
+    
+    localStorage.setItem(this.tokenName, token);
+    localStorage.setItem("isAdmin", isAdmin ? "true" : "false");
+
+    try {
+        const userJson = JSON.stringify(user);
+        console.log("JSON formátumú user:", userJson);
+        localStorage.setItem("currentUser", userJson);
+    } catch (error) {
+        console.error("Hiba a JSON konvertáláskor:", error);
+    }
+
     this.currentUserSubject.next(user);
-  }
+}
   
   // Kijelentkezés és adatok törlése
   logout(): void {
@@ -77,20 +97,25 @@ export class AuthService {
   // Felhasználó betöltése a localStorage-ból
   private loadUserFromStorage(): User | null {
     const user = localStorage.getItem('currentUser');
+    console.log("Betöltött user (string):", user);
     
-    // Ellenőrizzük, hogy van-e adat a 'currentUser' key alatt
     if (!user) {
-      return null; // Ha nincs adat, akkor nem próbálkozunk a JSON.parse-tel
+        console.warn("Nincs elmentett currentUser a localStorage-ban.");
+        return null;
     }
-  
+    
     try {
-      return JSON.parse(user); // Megpróbáljuk JSON formátumban értelmezni
+        const parsedUser = JSON.parse(user);
+        console.log("Betöltött user (parsed):", parsedUser);
+        return parsedUser;
     } catch (error) {
-      console.error('Hiba történt a felhasználó betöltésekor a localStorage-ból:', error);
-      localStorage.removeItem('currentUser'); // Töröljük az érvénytelen adatot
-      return null;
+        console.error("Hibás JSON formátum a localStorage-ban:", error);
+        localStorage.removeItem('currentUser'); // Töröljük a hibás adatot
+        return null;
     }
-  }
+}
+
+  
   
   
 }

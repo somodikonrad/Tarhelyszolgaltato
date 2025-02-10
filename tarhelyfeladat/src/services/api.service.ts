@@ -16,7 +16,7 @@ export class ApiService {
   private server = environment.serverUrl;
 
   getToken(): string | null {
-    return localStorage.getItem('token'); // Ne az environment változóból vedd, hanem közvetlenül!
+    return localStorage.getItem(this.tokenName); // Ne az environment változóból vedd, hanem közvetlenül!
   }
   
 
