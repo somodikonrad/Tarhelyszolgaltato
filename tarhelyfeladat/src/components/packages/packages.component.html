@@ -1,13 +1,14 @@
 <div class="package-container">
-  <p-card
-    *ngFor="let pkg of packages"
-    [header]="pkg.name"
-    [subheader]="'Ár: ' + pkg.price + ' USD'"
-  >
+  <p-card *ngFor="let pkg of packages" [header]="pkg.name" [subheader]="'Ár: ' + pkg.price + ' USD'">
     <p>{{ pkg.description }}</p>
     <ng-template pTemplate="footer">
-      <div class="flex gap-2 mt-1">
+      <div class="flex justify-between items-center mt-1">
         <p-button (click)="Buy(pkg.id)" label="Vásárlás" class="w-full"></p-button>
+
+        <!-- Csak adminoknak jelenik meg a törlés gomb -->
+        <p-button *ngIf="isAdmin" (click)="deletePackage(pkg.id)" icon="pi pi-trash" class="custom-danger-button p-button-text"></p-button>
+
+
       </div>
     </ng-template>
   </p-card>

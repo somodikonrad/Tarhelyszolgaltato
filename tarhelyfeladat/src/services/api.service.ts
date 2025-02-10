@@ -55,7 +55,23 @@ export class ApiService {
     return this.http.post(`${this.server}/users/subscribe`, data, this.tokenHeader());
   }
   
+  getPackages(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.server}/packages`);  // Végpont hozzáadása
+  }
   
+  createPackage(pkg: any): Observable<any> {
+    return this.http.post<any[]>(`${this.server}/packages`, pkg, this.tokenHeader()); // Fejléc hozzáadása
+  }
+  
+  deletePackage(id: number): Observable<any> {
+    return this.http.delete(`${this.server}/packages/${id}`, this.tokenHeader()).pipe(
+      catchError(error => {
+        console.error('Csomag törlése sikertelen', error);
+        return of(error);
+      })
+    );
+  }
+
 
   login(email: string, password: string): Observable<any> {
     return this.http.post<any>(`${this.server}/users/login`, { email, password }).pipe(

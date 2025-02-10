@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Package, PackagesService } from '../../services/packages.service';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
@@ -8,6 +7,7 @@ import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { MessageService } from '../../services/message.service';
 import { Router, RouterModule } from '@angular/router';
+import { Package } from '../../interfaces/package';
 
 
 @Component({
@@ -18,6 +18,7 @@ import { Router, RouterModule } from '@angular/router';
   styleUrls: ['./packages.component.scss'],
 })
 export class PackagesComponent implements OnInit {
+
   packages: Package[] = []; // Csomagok listája
   createPackageFormVisible: boolean = false; // Az új csomag form láthatósága
   newPackage: Package = {
@@ -27,7 +28,6 @@ export class PackagesComponent implements OnInit {
   isAdmin: boolean = false; // Admin jogosultság kezelése
 
   constructor(
-    private packageService: PackagesService,
     private authService: AuthService ,// AuthService injektálása
     private apiService: ApiService,
     private message: MessageService,
@@ -41,7 +41,7 @@ export class PackagesComponent implements OnInit {
 
   // Csomagok betöltése
   loadPackages() {
-    this.packageService.getPackages().subscribe((data: Package[]) => {
+    this.apiService.getPackages().subscribe((data: Package[]) => {
       this.packages = data; // A kapott adatokat a csomagok listájához adjuk
     });
   }
@@ -58,7 +58,7 @@ export class PackagesComponent implements OnInit {
       return; // Ha valamelyik mező üres, ne küldjük el a csomagot
     }
   
-    this.packageService.createPackage(this.newPackage).subscribe(
+    this.apiService.createPackage(this.newPackage).subscribe(
       (response) => {
         console.log('Csomag sikeresen létrehozva:', response); // sikeres válasz
         this.loadPackages(); // Frissítjük a csomagok listáját
@@ -101,7 +101,27 @@ export class PackagesComponent implements OnInit {
     );
   }
   
+  deletePackage(id: number) {
+    // Ellenőrizd, hogy az id string típusú, ha igen, konvertáld át number típussá
+    const packageId = typeof id === 'string' ? Number(id) : id;
   
+    if (confirm('Biztosan törölni szeretné ezt a csomagot?')) {
+      this.apiService.deletePackage(id).subscribe(
+        (response) => {
+          console.log('Csomag törölve:', response);
+          // A törölt csomagot eltávolítjuk a listából
+          this.packages = this.packages.filter(pkg => pkg.id !== packageId);
+        },
+        (error) => {
+          console.error('Hiba történt a csomag törlése közben:', error);
+          alert('Hiba történt a csomag törlése közben: ' + (error.error?.message || error.message || 'Ismeretlen hiba'));
+        }
+      );
+    }
+  }
+  
+  
+
   // Form bezárása
   cancelCreatePackage() {
     this.createPackageFormVisible = false;

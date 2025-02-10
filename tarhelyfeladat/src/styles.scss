@@ -147,3 +147,15 @@ main {
   animation: none !important;
   transition: none !important;
 }
+::ng-deep {
+  .p-button.custom-danger-button {
+  background-color: red !important;
+  border-color: red !important;
+  color: white !important;
+} 
+
+.p-button.custom-danger-button:hover {
+  background-color: darkred !important;
+  border-color: darkred !important;
+}}
+
