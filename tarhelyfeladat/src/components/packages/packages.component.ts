@@ -130,10 +130,12 @@ export class PackagesComponent implements OnInit {
 
   loadUsers() {
     this.apiService.getUsers().subscribe((response: any) => {
-      this.users = response.users || []; // response.users-ből szedi ki a tömböt
+      console.log('API response:', response); // Logolja az egész választ
+      this.users = response.users || []; // Ellenőrizzük, hogy létezik-e response.users
       console.log('Processed users:', this.users);
     });
   }
+  
   
   
   
@@ -143,6 +145,7 @@ export class PackagesComponent implements OnInit {
     { field: 'email', header: 'E-mail' },
     { field: 'role', header: 'Szerep' }
   ];
+  
   // Form bezárása
   cancelCreatePackage() {
     this.createPackageFormVisible = false;

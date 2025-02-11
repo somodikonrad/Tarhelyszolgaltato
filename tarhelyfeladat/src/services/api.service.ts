@@ -4,6 +4,7 @@ import { environment } from '../environments/environment';
 import { Observable, of } from 'rxjs';
 import { User } from '../interfaces/user';
 import { catchError } from 'rxjs/operators';  // catchError importálása
+import { tap } from 'rxjs/operators'; // Ezt importálni kell!
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,7 @@ export class ApiService {
   private server = environment.serverUrl;
 
   getToken(): string | null {
-    return localStorage.getItem(this.tokenName); // Ne az environment változóból vedd, hanem közvetlenül!
+    return localStorage.getItem("token"); // Ne az environment változóból vedd, hanem közvetlenül!
   }
   
 
@@ -60,8 +61,9 @@ export class ApiService {
   }
   
   createPackage(pkg: any): Observable<any> {
-    return this.http.post<any[]>(`${this.server}/packages`, pkg, this.tokenHeader()); // Fejléc hozzáadása
+    return this.http.post<any>(`${this.server}/packages`, pkg, this.tokenHeader());
   }
+  
   
   deletePackage(id: number): Observable<any> {
     return this.http.delete(`${this.server}/packages/${id}`, this.tokenHeader()).pipe(
@@ -75,18 +77,23 @@ export class ApiService {
 
   login(email: string, password: string): Observable<any> {
     return this.http.post<any>(`${this.server}/users/login`, { email, password }).pipe(
-      catchError(error => {
-        console.error('Login failed', error);
-        return of(error);
+      tap(response => {
+        if (response.token) {
+          localStorage.setItem(this.tokenName, response.token); // 🔹 Token mentése
+        }
       })
     );
   }
+  
+
   
   
  // Felhasználók lekérése
  getUsers(): Observable<any[]> {
   return this.http.get<any[]>(`${this.server}/users`, this.tokenHeader()); // Itt cseréld ki az API végpontot
 }
+
+
 
 }
 

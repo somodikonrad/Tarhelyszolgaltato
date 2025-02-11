@@ -30,7 +30,7 @@ login(email: string, password: string): Observable<{ user: User; token: string; 
             id: response.user.id,
             email: email, // Az email, amit a felhasználó megadott
             username: response.user.username || '', // A username itt biztosan bekerül
-            password: password,
+            password: '',
             role: response.user.role // Ha role-t is át szeretnél venni
           };
 

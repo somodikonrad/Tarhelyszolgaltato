@@ -53,7 +53,7 @@ export class RegisterComponent {
   
         // Sikeres regisztráció üzenet és átirányítás
         this.message.showMessage('OK', 'Sikeres regisztráció!', 'success');
-        this.router.navigateByUrl('/packages');
+        this.router.navigateByUrl('/login');
   
         // Az adatok nullázása
         this.user = { id: '', username: '', email: '', password: '', role: '' };
